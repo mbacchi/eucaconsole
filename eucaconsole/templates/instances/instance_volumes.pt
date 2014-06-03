@@ -36,7 +36,7 @@
                 <div class="tile item" ng-repeat="volume in volumes | orderBy: -attach_time" ng-cloak="">
                     <div class="header">
                         <strong><a ng-href="/volumes/{{ volume.id }}">{{ volume.name || volume.id }}</a></strong>
-                        <span class="tiny secondary button dropdown" data-dropdown="item-dropdown_{{ volume.id }}"><i class="fi-widget"></i></span>
+                        <span id="tile-item-dropdown_{{ volume.id }}" class="tiny secondary button dropdown" data-dropdown="item-dropdown_{{ volume.id }}"><i class="fi-widget"></i></span>
                         <ul id="item-dropdown_{{ volume.id }}" class="f-dropdown" data-dropdown-content="">
                             <li ng-show="item.status !== 'terminated' &amp;&amp; !item.transitional">
                                 <a ng-click="detachModal(volume.id, volume.device, '${request.route_path('instance_json', id=instance.id)}', volume.detach_form_action)"
@@ -73,7 +73,8 @@
             <div class="help-padding">&nbsp;</div>
             <metal:block metal:use-macro="layout.global_macros['help_expando']" />
             <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
-                ${panel('help_instances', 'instance_volume')}
+                <!--! HELP CONTENT HERE -->
+                <div id="help-html-console_instance_detail_volumes" ng-include="'${layout.help_path('console_instance_detail_volumes.html')}'"></div> 
             </div>
         </div>
         <!--! modal dialogs -->
@@ -99,6 +100,7 @@
                 <div class="help-content" ng-show="isDialogHelpExpanded" ng-cloak="">
                     <!--! Volume device help -->
                     <metal:block metal:use-macro="layout.global_macros['volumedevice_help']" />
+                    <div id="help-html-console_attach_volume" ng-include="'${layout.help_path('console_attach_volume.html')}'"></div> 
                 </div>
             </div>
             <div id="detach-volume-modal" class="reveal-modal small" data-reveal="">

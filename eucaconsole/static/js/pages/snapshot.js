@@ -12,7 +12,10 @@ angular.module('SnapshotPage', ['TagEditor'])
         $scope.transitionalStates = ['pending', 'deleting'];
         $scope.snapshotStatus = '';
         $scope.snapshotProgress = '';
+        $scope.isNotChanged = true;
         $scope.isUpdating = false;
+        $scope.imagesURL = '';
+        $scope.images = undefined;
         $scope.isTransitional = function (state) {
             return $scope.transitionalStates.indexOf(state) !== -1;
         };
@@ -26,12 +29,13 @@ angular.module('SnapshotPage', ['TagEditor'])
                 $('#volume_id').val('').trigger('chosen:updated'); 
             });
         };
-        $scope.initController = function (jsonEndpoint, status, progress, volumeCount) {
+        $scope.initController = function (jsonEndpoint, status, progress, volumeCount, imagesURL) {
             $scope.displayVolumeWarning(volumeCount);
             $scope.initChosenSelector();
             $scope.snapshotStatusEndpoint = jsonEndpoint;
             $scope.snapshotStatus = status;
             $scope.snapshotProgress = progress;
+            $scope.imagesURL = imagesURL;
             if (jsonEndpoint) {
                 $scope.getSnapshotState();
             }
@@ -49,6 +53,10 @@ angular.module('SnapshotPage', ['TagEditor'])
                 if (results) {
                     $scope.snapshotStatus = results['status'];
                     $scope.snapshotProgress = results['progress'];
+                    if ($scope.snapshotStatus == 'failed') {
+                        $scope.isUpdating = false;
+                        return true;
+                    }
                     // Poll to obtain desired end state if current state is transitional or snapshot is in progress
                     if ($scope.isTransitional($scope.snapshotStatus) || $scope.inProgress($scope.snapshotProgress)) {
                         $scope.isUpdating = true;
@@ -65,6 +73,13 @@ angular.module('SnapshotPage', ['TagEditor'])
             });
         };
         $scope.setWatch = function () {
+            $scope.$on('tagUpdate', function($event) {
+                $scope.isNotChanged = false;
+            });
+            $(document).on('input', 'input[type="text"]', function () {
+                $scope.isNotChanged = false;
+                $scope.$apply();
+            });
             $(document).on('submit', '[data-reveal] form', function () {
                 $(this).find('.dialog-submit-button').css('display', 'none');                
                 $(this).find('.dialog-progress-display').css('display', 'block');                
@@ -72,7 +87,8 @@ angular.module('SnapshotPage', ['TagEditor'])
         };
         $scope.setFocus = function () {
             $(document).on('ready', function(){
-                $('.actions-menu').find('a').get(0).focus();
+                var actionsMenu = $('.actions-menu');
+                if (actionsMenu.length) actionsMenu.find('a').get(0).focus();
             });
             $(document).on('opened', '[data-reveal]', function () {
                 var modal = $(this);
@@ -91,6 +107,26 @@ angular.module('SnapshotPage', ['TagEditor'])
                         modalButton.focus();
                     }
                }
+            });
+        };
+        $scope.deleteModal = function () {
+            var modal = $('#delete-snapshot-modal');
+            $scope.images = undefined;
+            $scope.getSnapshotImages($scope.imagesURL);
+            modal.foundation('reveal', 'open');
+            modal.find('h3').click();
+        };
+        $scope.getSnapshotImages = function (url) {
+            $http.get(url).success(function(oData) {
+                var results = oData ? oData.results : '';
+                if (results && results.length > 0) {
+                    $scope.images = results;
+                }
+            }).error(function (oData, status) {
+                var errorMsg = oData['message'] || null;
+                if (errorMsg && status === 403) {
+                    $('#timed-out-modal').foundation('reveal', 'open');
+                }
             });
         };
     })

@@ -1,4 +1,29 @@
 # -*- coding: utf-8 -*-
+# Copyright 2013-2014 Eucalyptus Systems, Inc.
+#
+# Redistribution and use of this software in source and binary forms,
+# with or without modification, are permitted provided that the following
+# conditions are met:
+#
+# Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """
 Pyramid views for Eucalyptus and AWS volumes
 
@@ -49,7 +74,7 @@ class VolumesView(LandingPageView, BaseVolumeView):
         self.prefix = '/volumes'
         self.location = self.get_redirect_location('volumes')
         with boto_error_handler(request, self.location):
-            self.instances = self.get_instances_by_state(self.conn.get_only_instances() if self.conn else [], "running")
+            self.instances = self.conn.get_only_instances(filters={'instance-state-name':['running', 'stopped']}) if self.conn else []
         self.delete_form = DeleteVolumeForm(self.request, formdata=self.request.params or None)
         self.attach_form = AttachForm(self.request, instances=self.instances, formdata=self.request.params or None)
         self.detach_form = DetachForm(self.request, formdata=self.request.params or None)
@@ -138,14 +163,6 @@ class VolumesView(LandingPageView, BaseVolumeView):
         return instances_by_zone
 
     @staticmethod
-    def get_instances_by_state(instances, state="running"):
-        instances_by_state = []
-        for instance in instances:
-            if instance.state == state:
-                instances_by_state.append(instance)
-        return instances_by_state
-
-    @staticmethod
     def get_sort_keys():
         """sort_keys are passed to sorting drop-down on landing page"""
         return [
@@ -220,7 +237,7 @@ class VolumeView(TaggedItemView, BaseVolumeView):
         self.location = self.request.route_path('volume_view', id=self.request.matchdict.get('id'))
         with boto_error_handler(request, self.location):
             self.volume = self.get_volume()
-            snapshots = self.conn.get_all_snapshots() if self.conn else []
+            snapshots = self.conn.get_all_snapshots(owner='self') if self.conn else []
             region = self.request.session.get('region')
             zones = ChoicesManager(self.conn).get_availability_zones(region)
             instances = self.conn.get_only_instances() if self.conn else []
@@ -234,7 +251,6 @@ class VolumeView(TaggedItemView, BaseVolumeView):
         self.tagged_obj = self.volume
         self.attach_data = self.volume.attach_data if self.volume else None
         self.volume_name = self.get_volume_name()
-        self.create_time = self.get_create_time()
         self.instance_name = None
         if self.attach_data is not None and self.attach_data.instance_id is not None:
             instance = self.get_instance(self.attach_data.instance_id)
@@ -242,7 +258,6 @@ class VolumeView(TaggedItemView, BaseVolumeView):
         self.render_dict = dict(
             volume=self.volume,
             volume_name=self.volume_name,
-            volume_create_time=self.create_time,
             instance_name=self.instance_name,
             device_name=self.attach_data.device if self.attach_data else None,
             attachment_time=self.get_attachment_time(),
@@ -257,12 +272,6 @@ class VolumeView(TaggedItemView, BaseVolumeView):
         if self.volume is None and self.request.matchdict.get('id') != 'new':
             raise HTTPNotFound
         return self.render_dict
-
-    def get_create_time(self):
-        """Returns volume create time as a python datetime.datetime object"""
-        if self.volume and self.volume.create_time:
-            return parser.parse(self.volume.create_time)
-        return None
 
     def get_attachment_time(self):
         """Returns volume attach time as a python datetime.datetime object"""

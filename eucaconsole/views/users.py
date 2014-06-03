@@ -1,10 +1,34 @@
 # -*- coding: utf-8 -*-
+# Copyright 2013-2014 Eucalyptus Systems, Inc.
+#
+# Redistribution and use of this software in source and binary forms,
+# with or without modification, are permitted provided that the following
+# conditions are met:
+#
+# Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """
 Pyramid views for Eucalyptus and AWS Users
 
 """
 import csv
-from dateutil import parser
 import os
 import random
 import string
@@ -106,6 +130,8 @@ class UsersView(LandingPageView):
                 account = self.request.session['account']
                 string_output = StringIO.StringIO()
                 csv_w = csv.writer(string_output)
+                header = [_(u'Account'), _(u'User Name'), _(u'Password')]
+                csv_w.writerow(header)
                 row = [account, user_name, password]
                 csv_w.writerow(row)
                 self._store_file_("{acct}-{user}-login.csv".format(acct=account, user=user_name),
@@ -205,15 +231,16 @@ class UserView(BaseView):
         else:
             self.location = self.request.route_path('user_view', name=self.user.user_name)
         self.prefix = '/users'
-        create_date = parser.parse(self.user.create_date) if hasattr(self.user, 'create_date') else None
         self.user_form = None
         self.change_password_form = ChangePasswordForm(self.request)
         self.generate_form = GeneratePasswordForm(self.request)
         self.delete_form = DeleteUserForm(self.request)
+        self.already_member_text = _(u"User already a member of all groups")
+        self.no_groups_defined_text = _(u"There are no groups defined")
         self.render_dict = dict(
             user=self.user,
             prefix=self.prefix,
-            user_create_date=create_date,
+            user_create_date=getattr(self.user, 'create_date', None),
             change_password_form=self.change_password_form,
             generate_form=self.generate_form,
             delete_form=self.delete_form,
@@ -251,14 +278,16 @@ class UserView(BaseView):
             pass
         group_form = AddToGroupForm(self.request)
         self.render_dict['group_form'] = group_form
-        self.user_form = UserForm(self.request, user=self.user, conn=self.conn, formdata=self.request.params or None)
+        self.user_form = UserForm(self.request, user=self.user, conn=self.conn)
         self.render_dict['user_form'] = self.user_form
         self.render_dict['has_password'] = 'true' if has_password else 'false'
+        self.render_dict['already_member_text'] = self.already_member_text
+        self.render_dict['no_groups_defined_text'] = self.no_groups_defined_text
         return self.render_dict
  
     @view_config(route_name='user_new', renderer=NEW_TEMPLATE)
     def user_new(self):
-        self.user_form = UserForm(self.request, user=self.user, conn=self.conn, formdata=self.request.params or None)
+        self.user_form = UserForm(self.request, user=self.user, conn=self.conn)
         self.render_dict['user_form'] = self.user_form
         return self.render_dict
  
@@ -289,9 +318,9 @@ class UserView(BaseView):
             avail_groups = list(set(all_groups) - set(taken_groups))
             if len(avail_groups) == 0:
                 if len(all_groups) == 0:
-                    avail_groups.append(_(u"There are no groups defined"))
+                    avail_groups.append(self.no_groups_defined_text)
                 else:
-                    avail_groups.append(_(u"User already a member of all groups"))
+                    avail_groups.append(self.already_member_text)
             return dict(results=avail_groups)
 
     @view_config(route_name='user_policies_json', renderer='json', request_method='GET')
@@ -410,6 +439,13 @@ class UserView(BaseView):
             if not (access_keys == 'n' and random_password == 'n'):
                 string_output = StringIO.StringIO()
                 csv_w = csv.writer(string_output)
+                header = [_(u'Account'), _(u'User Name')]
+                if random_password == 'y':
+                    header.append(_(u'Password'))
+                if access_keys == 'y':
+                    header.append(_(u'Access Key'))
+                    header.append(_(u'Secret Key'))
+                csv_w.writerow(header)
                 for user in user_list:
                     row = [user['account'], user['username']]
                     if random_password == 'y':
@@ -468,6 +504,8 @@ class UserView(BaseView):
             account = self.request.session['account']
             string_output = StringIO.StringIO()
             csv_w = csv.writer(string_output)
+            header = [_(u'Account'), _(u'User Name'), _(u'Password')]
+            csv_w.writerow(header)
             row = [account, self.user.user_name, new_pass]
             csv_w.writerow(row)
             self._store_file_("{acct}-{user}-login.csv".format(
@@ -502,6 +540,8 @@ class UserView(BaseView):
             account = self.request.session['account']
             string_output = StringIO.StringIO()
             csv_w = csv.writer(string_output)
+            header = [_(u'Account'), _(u'User Name'), _(u'Password')]
+            csv_w.writerow(header)
             row = [account, self.user.user_name, new_pass]
             csv_w.writerow(row)
             self._store_file_(
@@ -530,6 +570,8 @@ class UserView(BaseView):
             account = self.request.session['account']
             string_output = StringIO.StringIO()
             csv_w = csv.writer(string_output)
+            header = [_(u'Account'), _(u'User Name'), _(u'Access Key'), _(u'Secret Key')]
+            csv_w.writerow(header)
             row = [account, self.user.user_name, result.access_key.access_key_id, result.access_key.secret_access_key]
             csv_w.writerow(row)
             self._store_file_(
@@ -545,7 +587,7 @@ class UserView(BaseView):
             return JSONResponse(status=400, message="missing CSRF token")
         key_id = self.request.matchdict.get('key')
         with boto_error_handler(self.request):
-            self.log_request(_(u"Creating access key {0} for user {1}").format(key_id, self.user.user_name))
+            self.log_request(_(u"Deleting access key {0} for user {1}").format(key_id, self.user.user_name))
             result = self.conn.delete_access_key(user_name=self.user.user_name, access_key_id=key_id)
             return dict(message=_(u"Successfully deleted key"))
 
@@ -592,7 +634,7 @@ class UserView(BaseView):
         with boto_error_handler(self.request):
             self.log_request(_(u"Removing user {0} from group {1}").format(self.user.user_name, group))
             result = self.conn.remove_user_from_group(user_name=self.user.user_name, group_name=group)
-            return dict(message=_(u"Successfully removed user to group"),
+            return dict(message=_(u"Successfully removed user from group"),
                         results=result)
 
     @view_config(route_name='user_delete', request_method='POST')

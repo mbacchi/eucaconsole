@@ -7,7 +7,8 @@
 <div metal:fill-slot="main_content">
     <div class="row" id="contentwrap" ng-app="VolumeSnapshots"
          ng-controller="VolumeSnapshotsCtrl"
-         ng-init="initController('${request.route_path('volume_snapshots_json', id=volume.id)}')">
+         ng-init="initController('${request.route_path('volume_snapshots_json', id=volume.id)}',
+                  '${request.route_path('snapshot_images_json', id='_id_')}')">
         <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
             <metal:crumbs metal:fill-slot="crumbs">
                 <li><a href="${request.route_path('volumes')}" i18n:translate="">Volumes</a></li>
@@ -36,7 +37,7 @@
                 <div class="tile item" ng-repeat="snapshot in snapshots | orderBy: '-start_time'" ng-cloak="">
                     <div class="header">
                         <strong><a ng-href="/snapshots/{{ snapshot.id }}">{{ snapshot.name || snapshot.id }}</a></strong>
-                        <span class="tiny secondary button dropdown" data-dropdown="item-dropdown_{{ snapshot.id }}"><i class="fi-widget"></i></span>
+                        <span id="tile-item-dropdown_{{ snapshot.id }}" class="tiny secondary button dropdown" data-dropdown="item-dropdown_{{ snapshot.id }}"><i class="fi-widget"></i></span>
                         <ul id="item-dropdown_{{ snapshot.id }}" class="f-dropdown" data-dropdown-content="">
                             <li>
                                 <a ng-href="/snapshots/{{ snapshot.id }}" i18n:translate="">View details</a>
@@ -79,9 +80,14 @@
             </div>
         </div>
         <div class="large-4 columns">
-            <div class="help-content">
-                <!--! Help goes here -->
-            </div>
+            <div class="help-padding">&nbsp;</div>
+            <metal:block metal:use-macro="layout.global_macros['help_expando']" />
+             <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
+                 <!-- HELP CONTENT -->
+                 <div id="help-html-console_volume_detail_snapshots"
+                     ng-include="'${layout.help_path('console_volume_detail_snapshots.html')}'">
+                 </div> 
+             </div>
         </div>
         <!--! modal dialogs -->
         <div id="snapshot-dialogs">
@@ -103,13 +109,6 @@
                 </form>
                 <a class="close-reveal-modal">&#215;</a>
             </div>
-        </div>
-        <div class="large-4 columns">
-            <div class="help-padding">&nbsp;</div>
-            <metal:block metal:use-macro="layout.global_macros['help_expando']" />
-             <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
-                 <!-- HELP CONTENT -->
-             </div>
         </div>
         <!--! Modal dialogs reused across landing and detail page -->
         ${panel('snapshot_dialogs', delete_form=delete_form, register_form=register_form, landingpage=True, volume_id=volume.id)}

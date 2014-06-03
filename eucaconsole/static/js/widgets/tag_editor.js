@@ -43,7 +43,7 @@ angular.module('TagEditor', ['ngSanitize'])
             tagsJson = tagsJson.replace(/__apos__/g, "\'").replace(/__dquote__/g, '\\"').replace(/__bslash__/g, "\\");
             var tagsObj = JSON.parse(tagsJson);
             Object.keys(tagsObj).forEach(function(key) {
-                if (!key.match(/^aws:.*/)) {
+                if (!key.match(/^aws:.*/) && !key.match(/^euca:.*/)) {
                     $scope.tagsArray.push({
                         'name': key,
                         'value': tagsObj[key]
@@ -60,6 +60,7 @@ angular.module('TagEditor', ['ngSanitize'])
             $event.preventDefault();
             $scope.tagsArray.splice(index, 1);
             $scope.syncTags();
+            $scope.$emit('tagUpdate');
         };
         $scope.addTag = function ($event) {
             $event.preventDefault();
@@ -93,6 +94,7 @@ angular.module('TagEditor', ['ngSanitize'])
                     $scope.syncTags();
                     tagKeyField.val('').focus();
                     tagValueField.val('');
+                    $scope.$emit('tagUpdate');
                 }
             } else {
                 tagKeyField.val() ? tagValueField.focus() : tagKeyField.focus();
