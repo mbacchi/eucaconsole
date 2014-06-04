@@ -47,12 +47,7 @@
 	<td></td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
-	<td>link=Launch instance</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
+	<td>click</td>
 	<td>link=Launch instance</td>
 	<td></td>
 </tr>
@@ -98,6 +93,11 @@
 </tr>
 <tr>
 	<td>select</td>
+	<td>id=securitygroup</td>
+	<td>label=default</td>
+</tr>
+<tr>
+	<td>select</td>
 	<td>id=keypair</td>
 	<td>label=None (advanced option)</td>
 </tr>
@@ -109,6 +109,41 @@
 <tr>
 	<td>clickAndWait</td>
 	<td>id=launch-instance-btn-step3</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>id=notifications</td>
+	<td>breadcrumbs</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${breadcrumbs}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>css=a:contains(&quot;inst-from-images&quot;)</td>
+	<td>store</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=a:contains(&quot;inst-from-images&quot;)</td>
+	<td>store</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${store}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['store'].slice(18,28);</td>
+	<td>instance_from_images_id</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${instance_from_images_id}</td>
 	<td></td>
 </tr>
 </tbody></table>
