@@ -14,8 +14,11 @@ angular.module('VolumePage', ['TagEditor'])
         $scope.volumeAttachStatus = '';
         $scope.snapshotId = '';
         $scope.instanceId = '';
+        $scope.isNotChanged = true;
         $scope.isUpdating = false;
         $scope.fromSnapshot = false;
+        $scope.volumeSize = 1;
+        $scope.snapshotSize = 1;
         $scope.initController = function (jsonEndpoint, status, attachStatus) {
             $scope.initChosenSelectors();
             $scope.volumeStatusEndpoint = jsonEndpoint;
@@ -31,10 +34,16 @@ angular.module('VolumePage', ['TagEditor'])
             return $scope.transitionalStates.indexOf(state) !== -1;
         };
         $scope.populateVolumeSize = function () {
+           if( $scope.snapshotId == '' ){
+                $scope.snapshotSize = 1;
+                $scope.volumeSize = 1;
+                return;
+            }
             $http.get("/snapshots/"+$scope.snapshotId+"/size/json").success(function(oData) {
                 var results = oData ? oData.results : '';
                 if (results) {
-                    $('input#size').val(results);
+                    $scope.snapshotSize = results;
+                    $scope.volumeSize = results;
                 }
             }).error(function (oData, status) {
                 var errorMsg = oData['message'] || null;
@@ -87,9 +96,25 @@ angular.module('VolumePage', ['TagEditor'])
             });
         };
         $scope.setWatch = function () {
+            $scope.$on('tagUpdate', function($event) {
+                $scope.isNotChanged = false;
+            });
+            $scope.$watch('volumeSize', function () {
+                if( $scope.volumeSize < $scope.snapshotSize ){
+                    $('#volume_size_error').removeClass('hide');
+                    $('#create_volume_submit_button').attr('disabled','disabled');
+                }else{
+                    $('#volume_size_error').addClass('hide');
+                    $('#create_volume_submit_button').removeAttr('disabled');
+                }
+            });
             $(document).on('submit', '[data-reveal] form', function () {
                 $(this).find('.dialog-submit-button').css('display', 'none');                
                 $(this).find('.dialog-progress-display').css('display', 'block');                
+            });
+            $(document).on('input', 'input[type="text"]', function () {
+                $scope.isNotChanged = false;
+                $scope.$apply();
             });
         };
         $scope.setFocus = function () {

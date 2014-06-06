@@ -1,10 +1,34 @@
 # -*- coding: utf-8 -*-
+# Copyright 2013-2014 Eucalyptus Systems, Inc.
+#
+# Redistribution and use of this software in source and binary forms,
+# with or without modification, are permitted provided that the following
+# conditions are met:
+#
+# Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """
 Pyramid views for Eucalyptus and AWS instances
 
 """
 import base64
-from dateutil import parser
 from operator import attrgetter
 import simplejson as json
 from M2Crypto import RSA
@@ -362,7 +386,6 @@ class InstanceView(TaggedItemView, BaseInstanceView):
             self.request, conn=self.conn, formdata=self.request.params or None)
         self.disassociate_ip_form = DisassociateIpFromInstanceForm(self.request, formdata=self.request.params or None)
         self.tagged_obj = self.instance
-        self.launch_time = self.get_launch_time()
         self.location = self.get_redirect_location()
         self.instance_name = TaggedItemView.get_display_name(self.instance)
         self.has_elastic_ip = self.check_has_elastic_ip(self.instance.ip_address) if self.instance else False
@@ -373,7 +396,6 @@ class InstanceView(TaggedItemView, BaseInstanceView):
             image=self.image,
             scaling_group=self.scaling_group,
             instance_form=self.instance_form,
-            instance_launch_time=self.launch_time,
             start_form=self.start_form,
             stop_form=self.stop_form,
             reboot_form=self.reboot_form,
@@ -522,12 +544,6 @@ class InstanceView(TaggedItemView, BaseInstanceView):
                 self.request.session.flash(msg, queue=Notification.SUCCESS)
             return HTTPFound(location=self.location)
         return self.render_dict
-
-    def get_launch_time(self):
-        """Returns instance launch time as a python datetime.datetime object"""
-        if self.instance and self.instance.launch_time:
-            return parser.parse(self.instance.launch_time)
-        return None
 
     def get_scaling_group(self):
         if self.instance:
@@ -781,6 +797,7 @@ class InstanceLaunchView(BlockDeviceMappingItemView):
                     num_instances, image_id, instance_type))
                 reservation = self.conn.run_instances(
                     image_id,
+                    min_count=num_instances,
                     max_count=num_instances,
                     key_name=key_name,
                     user_data=self.get_user_data(),
@@ -905,8 +922,8 @@ class InstanceLaunchMoreView(BaseInstanceView, BlockDeviceMappingItemView):
                         instance.add_tag('Name', name)
                     if source_instance_tags:
                         for tagname, tagvalue in source_instance_tags.items():
-                            # Don't copy 'Name' tag, and avoid tags that start with 'aws:'
-                            if all([tagname != 'Name', not tagname.startswith('aws:')]):
+                            # Don't copy 'Name' tag, and avoid tags that start with 'aws:' and 'euca:'
+                            if all([tagname != 'Name', not tagname.startswith('aws:'), not tagname.startswith('euca:')]):
                                 instance.add_tag(tagname, tagvalue)
                 msg = _(u'Successfully sent launch instances request.  It may take a moment to launch instances ')
                 msg += ', '.join(new_instance_ids)

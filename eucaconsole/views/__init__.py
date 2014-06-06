@@ -1,4 +1,29 @@
 # -*- coding: utf-8 -*-
+# Copyright 2013-2014 Eucalyptus Systems, Inc.
+#
+# Redistribution and use of this software in source and binary forms,
+# with or without modification, are permitted provided that the following
+# conditions are met:
+#
+# Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """
 Core views
 
@@ -7,7 +32,9 @@ import logging
 import simplejson as json
 import textwrap
 
+from cgi import FieldStorage
 from contextlib import contextmanager
+from dateutil import tz
 from urllib import urlencode
 from urlparse import urlparse
 
@@ -73,22 +100,22 @@ class BaseView(object):
             port = int(self.request.registry.settings.get('clcport', 8773))
             if conn_type == 'ec2':
                 host = self.request.registry.settings.get('ec2.host', host)
-                port = self.request.registry.settings.get('ec2.port', port)
+                port = int(self.request.registry.settings.get('ec2.port', port))
             elif conn_type == 'autoscale':
                 host = self.request.registry.settings.get('autoscale.host', host)
-                port = self.request.registry.settings.get('autoscale.port', port)
+                port = int(self.request.registry.settings.get('autoscale.port', port))
             elif conn_type == 'cloudwatch':
                 host = self.request.registry.settings.get('cloudwatch.host', host)
-                port = self.request.registry.settings.get('cloudwatch.port', port)
+                port = int(self.request.registry.settings.get('cloudwatch.port', port))
             elif conn_type == 'elb':
                 host = self.request.registry.settings.get('elb.host', host)
-                port = self.request.registry.settings.get('elb.port', port)
+                port = int(self.request.registry.settings.get('elb.port', port))
             elif conn_type == 'iam':
                 host = self.request.registry.settings.get('iam.host', host)
-                port = self.request.registry.settings.get('iam.port', port)
+                port = int(self.request.registry.settings.get('iam.port', port))
             elif conn_type == 'sts':
                 host = self.request.registry.settings.get('sts.host', host)
-                port = self.request.registry.settings.get('sts.port', port)
+                port = int(self.request.registry.settings.get('sts.port', port))
 
             conn = ConnectionManager.euca_connection(
                 host, port, self.access_key, self.secret_key, self.security_token, conn_type)
@@ -165,13 +192,10 @@ class BaseView(object):
         if request.is_xhr:
             raise JSONError(message=message, status=status or 403)
         if status == 403:
-            if any(['Invalid access key' in message, 'Invalid security token' in message]):
-                notice = message
-            else:
-                notice = _(u'Your session has timed out')
+            notice = _(u'Your session has timed out. This may be due to inactivity, a policy that does not provide login permissions, or an unexpected error. Please log in again, and contact your cloud administrator if the problem persists.')
             request.session.flash(notice, queue=Notification.WARNING)
             # Empty Beaker cache to clear connection objects
-            BaseView.invalidate_connection_cache()
+            # BaseView.invalidate_connection_cache()
             raise HTTPFound(location=request.route_path('login'))
         request.session.flash(message, queue=Notification.ERROR)
         if location is None:
@@ -180,6 +204,7 @@ class BaseView(object):
 
     @staticmethod
     def escape_json(json_string):
+        """Escape JSON strings passed to AngularJS controllers in templates"""
         replace_mapping = {
             "\'": "__apos__",
             '\\"': "__dquote__",
@@ -188,6 +213,11 @@ class BaseView(object):
         for key, value in replace_mapping.items():
             json_string = json_string.replace(key, value)
         return json_string
+
+    @staticmethod
+    def dt_isoformat(dt_obj, tzone='UTC'):
+        """Convert a timezone-unaware datetime object to tz-aware one and return it as an ISO-8601 formatted string"""
+        return dt_obj.replace(tzinfo=tz.gettz(tzone)).isoformat()
 
 
 class TaggedItemView(BaseView):
@@ -204,13 +234,18 @@ class TaggedItemView(BaseView):
             tags_dict = json.loads(tags_json) if tags_json else {}
             tags = {}
             for key, value in tags_dict.items():
-                if not key.strip().startswith('aws:'):
-                    tags[key] = value
+                key = key.strip()
+                if not any([key.startswith('aws:'), key.startswith('euca:')]):
+                    tags[key] = value.strip()
             self.conn.create_tags([self.tagged_obj.id], tags)
 
     def remove_tags(self):
         if self.conn:
-            tagkeys = [tagkey for tagkey in self.tagged_obj.tags.keys() if not tagkey.startswith('aws:')]
+            tagkeys = []
+            object_tags = self.tagged_obj.tags.keys()
+            for tagkey in object_tags:
+                if not any([tagkey.startswith('aws:'), tagkey.startswith('euca:')]):
+                    tagkeys.append(tagkey)
             self.conn.delete_tags([self.tagged_obj.id], tagkeys)
 
     def update_tags(self):
@@ -242,7 +277,7 @@ class TaggedItemView(BaseView):
            Skips the 'Name' tag by default. no wrapping by default, otherwise honor wrap_width"""
         tags_array = []
         for key, val in tags.items():
-            if not key.startswith('aws:'):
+            if not any([key.startswith('aws:'), key.startswith('euca:')]):
                 template = '{0}={1}'
                 if skip_name and key == 'Name':
                     continue
@@ -283,7 +318,7 @@ class BlockDeviceMappingItemView(BaseView):
 
     def get_snapshot_choices(self):
         choices = [('', _(u'None'))]
-        for snapshot in self.conn.get_all_snapshots():
+        for snapshot in self.conn.get_all_snapshots(owner='self'):
             value = snapshot.id
             snapshot_name = snapshot.tags.get('Name')
             label = '{id}{name} ({size} GB)'.format(
@@ -297,7 +332,7 @@ class BlockDeviceMappingItemView(BaseView):
     def get_user_data(self):
         userdata_input = self.request.params.get('userdata')
         userdata_file_param = self.request.POST.get('userdata_file')
-        userdata_file = userdata_file_param.file.read() if userdata_file_param else None
+        userdata_file = userdata_file_param.file.read() if isinstance(userdata_file_param, FieldStorage) else None
         userdata = userdata_file or userdata_input or None  # Look up file upload first
         return userdata
 
@@ -314,10 +349,13 @@ class BlockDeviceMappingItemView(BaseView):
                 bdm = BlockDeviceMapping()
                 for key, val in mapping.items():
                     device = BlockDeviceType()
-                    device.volume_type = val.get('volume_type')  # 'EBS' or 'ephemeral'
-                    device.snapshot_id = val.get('snapshot_id') or None
-                    device.size = val.get('size')
-                    device.delete_on_termination = val.get('delete_on_termination', False)
+                    if val.get('virtual_name') is not None and val.get('virtual_name').startswith('ephemeral'):
+                        device.ephemeral_name = val.get('virtual_name')
+                    else:
+                        device.volume_type = 'standard'
+                        device.snapshot_id = val.get('snapshot_id') or None
+                        device.size = val.get('size')
+                        device.delete_on_termination = val.get('delete_on_termination', False)
                     bdm[key] = device
                 return bdm
             return None

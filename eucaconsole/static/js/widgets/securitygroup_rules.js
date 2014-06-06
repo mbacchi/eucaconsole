@@ -29,9 +29,9 @@ angular.module('SecurityGroupRules', [])
             $scope.rulesTextarea.val(JSON.stringify($scope.rulesArray));
             $scope.resetValues();
         };
-        $scope.initRules = function (rulesArray) {
-            // Get existing rules and shove into scope
-            $scope.rulesArray = JSON.parse(rulesArray);
+        $scope.initRules = function (rulesJson) {
+            rulesJson = rulesJson.replace(/__apos__/g, "\'").replace(/__dquote__/g, '\\"').replace(/__bslash__/g, "\\");
+            $scope.rulesArray = JSON.parse(rulesJson);
             $scope.syncRules();
             $scope.setWatchers();
         };
@@ -131,6 +131,7 @@ angular.module('SecurityGroupRules', [])
             $event.preventDefault();
             $scope.rulesArray.splice(index, 1);
             $scope.syncRules();
+            $scope.$emit('securityGroupUpdate');
         };
         // Adjust the IP Protocol atrributes for specical cases
         $scope.adjustIpProtocol = function () {
@@ -173,6 +174,7 @@ angular.module('SecurityGroupRules', [])
             // Add the rule
             $scope.rulesArray.push($scope.createRuleArrayBlock());
             $scope.syncRules();
+            $scope.$emit('securityGroupUpdate');
         };
         $scope.cancelRule = function ($event) {
             $event.preventDefault();

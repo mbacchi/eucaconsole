@@ -172,7 +172,9 @@
                     </div>
                     <div class="row controls-wrapper readonly">
                         <div class="small-4 columns"><label i18n:translate="">Launch time</label></div>
-                        <div class="small-8 columns value">${instance_launch_time.strftime(layout.date_format)}</div>
+                        <div class="small-8 columns value" ng-cloak="">
+                            {{ '${instance.launch_time}' | date: '${layout.angular_date_format}' }}
+                        </div>
                     </div>
                     <div class="row controls-wrapper readonly" tal:condition="scaling_group">
                         <div class="small-4 columns"><label i18n:translate="">Scaling group</label></div>
@@ -205,7 +207,9 @@
                     <h6 i18n:translate="">Image</h6>
                     <div class="row controls-wrapper readonly">
                         <div class="small-4 columns"><label i18n:translate="">Image ID</label></div>
-                        <div tal:condition="image" class="small-8 columns value">${image.id}</div>
+                        <div tal:condition="image" class="small-8 columns value">
+                            <a href="${request.route_path('image_view', id=image.id)}">${image.id}</a>
+                        </div>
                     </div>
                     <div class="row controls-wrapper readonly">
                         <div class="small-4 columns"><label i18n:translate="">Image name</label></div>
@@ -245,7 +249,7 @@
                     ${panel('tag_editor', tags=instance.tags, show_name_tag=False)}
                     <hr />
                     <div>
-                        <button type="submit" class="button" id="save-changes-btn" ng-click="submitSaveChanges($event)">
+                        <button type="submit" class="button" id="save-changes-btn" ng-click="submitSaveChanges($event)" ng-disabled="isNotChanged">
                             <span i18n:translate="">Save Changes</span>
                         </button>
                         <a href="${request.route_path('instances')}" id="cancel-update-link"
@@ -259,11 +263,8 @@
             <div class="help-padding">&nbsp;</div>
             <metal:block metal:use-macro="layout.global_macros['help_expando']" />
             <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
-                ${panel('help_instances', 'connect_instance', instance_security_group, instance.key_name, instance.ip_address)}
-            </div>
-            <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
-                <!--! Tag editor help content -->
-                <metal:block metal:use-macro="layout.global_macros['tageditor_help']" />
+                <!--! HELP CONTENT HERE -->
+                <div id="help-html-console_instance_detail" ng-include="'${layout.help_path('console_instance_detail.html')}'"></div> 
             </div>
         </div>
         <!--! Modal dialogs reused across landing and detail page -->

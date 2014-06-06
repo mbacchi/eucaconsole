@@ -25,7 +25,7 @@ angular.module('AutoScaleTagEditor', ['ngSanitize'])
             tagsJson = tagsJson.replace(/__apos__/g, "\'").replace(/__dquote__/g, '\\"').replace(/__bslash__/g, "\\");
             var tagsArray = JSON.parse(tagsJson);
             tagsArray.forEach(function(tag) {
-                if (!tag['name'].match(/^aws:.*/)) {
+                if (!tag['name'].match(/^aws:.*/) && !tag['name'].match(/^euca:.*/)) {
                     $scope.tagsArray.push({
                         'name': tag['name'],
                         'value': tag['value'],
@@ -42,6 +42,7 @@ angular.module('AutoScaleTagEditor', ['ngSanitize'])
             $event.preventDefault();
             $scope.tagsArray.splice(index, 1);
             $scope.syncTags();
+            $scope.$emit('tagUpdate');
         };
         $scope.togglePropagateCheckbox = function () {
             var checkbox = $('#propagate-checkbox');
@@ -85,6 +86,7 @@ angular.module('AutoScaleTagEditor', ['ngSanitize'])
                     tagKeyField.val('').focus();
                     tagValueField.val('');
                     tagPropagateField.prop('checked', false);
+                    $scope.$emit('tagUpdate');
                 }
             } else {
                 tagKeyField.val() ? tagValueField.focus() : tagKeyField.focus();

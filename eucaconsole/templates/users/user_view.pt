@@ -26,9 +26,9 @@
         </h3>
         <div class="large-8 columns">
             <dl class="tabs" data-tab="">
-                <dd class="active"><a href="#general-tab" i18n:translate="">General</a></dd>
-                <dd><a href="#security-tab" i18n:translate="">Security credentials</a></dd>
-                <dd ng-cloak="" ng-show="userName != 'admin'"><a href="#quotas-tab" i18n:translate="">Quotas</a></dd>
+                <dd class="active"><a href="#general-tab" ng-click="clickTab($event, 'general-tab')" i18n:translate="">General</a></dd>
+                <dd><a href="#security-tab" ng-click="clickTab($event, 'security-tab')" i18n:translate="">Security credentials</a></dd>
+                <dd ng-cloak="" ng-show="userName != 'admin'"><a href="#quotas-tab" ng-click="clickTab($event, 'quotas-tab')" i18n:translate="">Quotas</a></dd>
             </dl>
             <div class="tabs-content">
                 <div class="content active panel has-actions" id="general-tab">
@@ -46,17 +46,19 @@
                     </metal:block>
                     <div ng-controller="UserUpdateCtrl"
                          ng-init="initController('${request.route_path('user_update', name=user.user_name)}')">
-
                         <form data-abide="abide" id="user-update-form" ng-submit="submit($event)">
                             ${structure:user_form['csrf_token']}
                             <div class="columns section">
                                 <h6 i18n:translate="">User</h6>
-                                ${panel('form_field', field=user_form['user_name'], leftcol_width=3, rightcol_width=9)}
-                                <!-- ${panel('form_field', field=user_form['email'])} -->
                                 <div class="row controls-wrapper readonly">
+                                    <div class="small-3 columns"><label i18n:translate="">Name</label></div>
+                                    <div class="small-9 columns value">${user.user_name}</div>
+                                </div>
+                                <!-- ${panel('form_field', field=user_form['email'])} -->
+                                <div class="row controls-wrapper readonly" tal:condition="user_create_date">
                                     <div class="small-3 columns"><label class="right" i18n:translate="">Creation time</label></div>
-                                    <div class="small-9 columns field inline breakword">
-                                        ${user_create_date.strftime(layout.date_format)}
+                                    <div class="small-9 columns field inline breakword" ng-cloak="">
+                                        {{ '${user_create_date}' | date: '${layout.angular_date_format}' }}
                                     </div>
                                 </div>
                                 <div class="row controls-wrapper readonly">
@@ -85,7 +87,8 @@
                                 '${request.route_path('user_groups_json', name=user.user_name)}',
                                 '${request.route_path('user_avail_groups_json', name=user.user_name)}',
                                 '${request.route_path('group_policies_json', name='_name_')}',
-                                '${request.route_path('group_policy_json', name='_name_', policy='_policy_')}')">
+                                '${request.route_path('group_policy_json', name='_name_', policy='_policy_')}',
+                                '${already_member_text}', '${no_groups_defined_text}')">
                         <div class="columns section">
                             <h6 i18n:translate="">Groups</h6>
                             <div>&nbsp;</div>
@@ -93,12 +96,20 @@
                                 ${structure:user_form['csrf_token']}
                                 <div class="columns field inline">
                                     <div class="row controls-wrapper controls_group_name">
-                                        <div class="column small-6">
-                                            <select id="group_name" name="group_name" ng-options="item for item in groupNames"
-                                                    ng-init="getAvailableGroups(); index=0" ng-model="groupNames[index]">{{item}}</select>
+                                        <div class="column small-6" ng-cloak="">
+                                            <select id="group_name" name="group_name" ng-show="!noAvailableGroups"
+                                                    ng-init="getAvailableGroups()" ng-model="groupName">
+                                                <option value="" i18n:translate="">Select group...</option>
+                                                <option value="{{ item }}" ng-repeat="item in groupNames | orderBy: 'toString()'">
+                                                    {{ item }}
+                                                </option>
+                                            </select>
+                                            <span ng-show="alreadyMemberOfAllGroups">{{ alreadyMemberText }}</span>
+                                            <span ng-show="noGroupsDefined">{{ noGroupsDefinedText }}</span>
                                         </div>
                                         <div class="column small-6">
-                                            <button type="submit" class="button" id="add-user-to-group-btn">
+                                            <button type="submit" class="button" id="add-user-to-group-btn"
+                                                    ng-disabled="noAvailableGroups">
                                                 <span tal:condition="user" i18n:translate="">Add User to Group</span>
                                             </button>
                                         </div>
@@ -291,8 +302,8 @@
                                     <td>{{ item.status }}</td>
                                     <td>
                                         <span class="actions">
-                                            <a class="tiny secondary button dropdown round" data-dropdown="item-dropdown_{{ item.id }}"><i class="fi-widget"></i></a>
-                                            <ul id="item-dropdown_{{ item.id }}" class="f-dropdown" data-dropdown-content="">
+                                            <a class="tiny secondary button dropdown round" data-dropdown="item-dropdown_{{ item.access_key_id }}"><i class="fi-widget"></i></a>
+                                            <ul id="item-dropdown_{{ item.access_key_id }}" class="f-dropdown" data-dropdown-content="">
                                                 <li ng-show="item.status === 'Active'">
                                                     <a i18n:translate="" ng-click="makeAjaxCall('${request.route_path('user_deactivate_key', name='_name_', key='_key_')}', item)">Deactivate</a>
                                                 </li>
@@ -313,7 +324,7 @@
                                     <p>
                                         <span i18n:translate="">Are you sure you want to delete this access key?</span>
                                     </p>
-                                    <form id="delete-key-form" ng-submit="deleteKey('${request.route_path('user_delete_key', name='_name_', key='_key_')}')">
+                                    <form id="delete-key-form" ng-submit="deleteKey($event, '${request.route_path('user_delete_key', name='_name_', key='_key_')}')">
                                         ${structure:user_form['csrf_token']}
                                         <div>&nbsp;</div>
                                         <div class="row">
@@ -371,7 +382,12 @@
         <div class="large-4 columns">
             <div class="help-padding">&nbsp;</div>
             <metal:block metal:use-macro="layout.global_macros['help_expando']" />
-            <!--! Help goes here -->
+            <div class="help-content" ng-show="isHelpExpanded" ng-cloak="">
+                <!--! Help goes here -->
+                <div id="help-html-console_user_detail_general" ng-show="currentTab == 'general-tab'" ng-include="'${layout.help_path('console_user_detail_general.html')}'"></div> 
+                <div id="help-html-console_user_detail_security" ng-show="currentTab == 'security-tab'" ng-include="'${layout.help_path('console_user_detail_security.html')}'"></div> 
+                <div id="help-html-console_user_detail_quotas" ng-show="currentTab == 'quotas-tab'" ng-include="'${layout.help_path('console_user_detail_quotas.html')}'"></div> 
+            </div>
         </div>
         ${panel('user_dialogs', delete_form=delete_form, disable_form=disable_form, enable_form=enable_form)}
     </div>
