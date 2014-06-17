@@ -77,9 +77,34 @@
 	<td></td>
 </tr>
 <tr>
+	<td>storeEval</td>
+	<td>(Math.random().toString(36)+&quot;000000000&quot;).slice(2,7);</td>
+	<td>str</td>
+</tr>
+<tr>
 	<td>type</td>
+	<td>name=name_0</td>
+	<td>instance${str}</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>instance${str}</td>
+	<td>instance_name</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${instance_name}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
 	<td>id=instance_type</td>
-	<td>m1.medium</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=instance_type</td>
+	<td>${instance_type}</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -89,12 +114,12 @@
 <tr>
 	<td>select</td>
 	<td>id=securitygroup</td>
-	<td>label=default</td>
+	<td>label=${s_group_name}</td>
 </tr>
 <tr>
 	<td>select</td>
 	<td>id=keypair</td>
-	<td>label=None (advanced option)</td>
+	<td>label=${keypair_name}</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>

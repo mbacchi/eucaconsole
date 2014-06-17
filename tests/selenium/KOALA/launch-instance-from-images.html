@@ -57,9 +57,24 @@
 	<td></td>
 </tr>
 <tr>
+	<td>storeEval</td>
+	<td>(Math.random().toString(36)+&quot;000000000&quot;).slice(2,7);</td>
+	<td>str</td>
+</tr>
+<tr>
 	<td>type</td>
 	<td>name=name_0</td>
-	<td>inst-from-images</td>
+	<td>instance${str}</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>instance${str}</td>
+	<td>instance_name</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${instance_name}</td>
+	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
@@ -67,9 +82,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
+	<td>select</td>
 	<td>id=instance_type</td>
-	<td>label=m1.medium: 1 CPUs, 512 memory (MB), 10 disk (GB,root device)</td>
+	<td>${instance_type}</td>
 </tr>
 <tr>
 	<td>type</td>
@@ -94,12 +109,12 @@
 <tr>
 	<td>select</td>
 	<td>id=securitygroup</td>
-	<td>label=default</td>
+	<td>label=${s_group_name}</td>
 </tr>
 <tr>
 	<td>select</td>
 	<td>id=keypair</td>
-	<td>label=None (advanced option)</td>
+	<td>label=${keypair_name}</td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
@@ -123,12 +138,12 @@
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>css=a:contains(&quot;inst-from-images&quot;)</td>
+	<td>css=a:contains(&quot;${instance_name}&quot;)</td>
 	<td>store</td>
 </tr>
 <tr>
 	<td>storeText</td>
-	<td>css=a:contains(&quot;inst-from-images&quot;)</td>
+	<td>css=a:contains(&quot;${instance_name}&quot;)</td>
 	<td>store</td>
 </tr>
 <tr>
@@ -138,12 +153,12 @@
 </tr>
 <tr>
 	<td>storeEval</td>
-	<td>storedVars['store'].slice(18,28);</td>
-	<td>instance_from_images_id</td>
+	<td>storedVars['store'].slice(15,25);</td>
+	<td>instance_id</td>
 </tr>
 <tr>
 	<td>echo</td>
-	<td>${instance_from_images_id}</td>
+	<td>${instance_id}</td>
 	<td></td>
 </tr>
 </tbody></table>
