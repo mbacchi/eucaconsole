@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>verify-s-group-was-deleted</title>
+<title>verify-snapshot-visible-on-lp</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">verify-s-group-was-deleted</td></tr>
+<tr><td rowspan="1" colspan="3">verify-snapshot-visible-on-lp</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -17,50 +17,41 @@
 	<td></td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
-	<td>id=resource-menu-dashboard</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=resource-menu-dashboard</td>
-	<td></td>
-</tr>
-<tr>
 	<td>assertVisible</td>
-	<td>id=resource-menu-netsec</td>
+	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>id=resource-menu-netsec</td>
+	<td>setTimeout</td>
+	<td>200000</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=resource-menuitem-securitygroups</td>
+	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>css=span.items-found</td>
+	<td>css=#snapshots &gt; div.tile &gt; div.content &gt; a &gt; i.icon</td>
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>id=search-filter</td>
+	<td>clickAndWait</td>
+	<td>css=#snapshots &gt; div.tile &gt; div.content &gt; a &gt; i.icon</td>
 	<td></td>
 </tr>
 <tr>
-	<td>sendKeys</td>
-	<td>id=search-filter</td>
-	<td>${s_group_name}</td>
+	<td>waitForVisible</td>
+	<td>id=refresh-btn</td>
+	<td></td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>//div[@id='tableview']/div/div</td>
-	<td>No items were found ×</td>
+	<td>waitForVisible</td>
+	<td>link=${snapshot_name} (${snapshot_id})</td>
+	<td></td>
 </tr>
+
 </tbody></table>
 </body>
 </html>
