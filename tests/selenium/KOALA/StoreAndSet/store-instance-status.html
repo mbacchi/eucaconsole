@@ -3,12 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>koala_login</title>
+<link rel="selenium.base" href="https://10.111.5.53/" />
+<title>store-instance-status</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">koala_login</td></tr>
+<tr><td rowspan="1" colspan="3">store-instance-status</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -16,70 +17,56 @@
 	<td></td>
 </tr>
 <tr>
-	<td>setTimeout</td>
-	<td>120000</td>
+	<td>assertVisible</td>
+	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
-	<td>open</td>
-	<td>/</td>
+	<td>clickAndWait</td>
+	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>//dd[@id='euca-tab']/a</td>
+	<td>id=resource-menu-instances</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertVisible</td>
-	<td>//dd[@id='euca-tab']/a</td>
+	<td>clickAndWait</td>
+	<td>id=resource-menu-instances</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>link=${instance_name} (${instance_id})</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>//dd[@id='euca-tab']/a</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertVisible</td>
-	<td>id=account</td>
-	<td></td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=account</td>
-	<td>ui-test-acct-00</td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>id=username</td>
-	<td></td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=username</td>
-	<td>admin</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=password</td>
-	<td>mypassword0</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=euca-login-button</td>
+	<td>link=${instance_name} (${instance_id})</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>link=Launch Instance</td>
+	<td>//form[@id='instance-form']/div/div[2]/span</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertText</td>
-	<td>link=Launch Instance</td>
-	<td>Launch Instance</td>
+	<td>storeText</td>
+	<td>//form[@id='instance-form']/div/div[2]/span</td>
+	<td>status</td>
 </tr>
+<tr>
+	<td>store</td>
+	<td>${status}</td>
+	<td>instance_status</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${instance_status}</td>
+	<td></td>
+</tr>
+
 </tbody></table>
 </body>
 </html>

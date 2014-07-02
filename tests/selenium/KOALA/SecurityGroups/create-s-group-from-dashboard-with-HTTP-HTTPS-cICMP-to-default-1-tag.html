@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>create-s-group-with-rules-and-tags</title>
+<title>create-s-group-from-dashboard-with-HTTP-HTTPS-cICMP-to-default-1-tag</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">create-s-group-with-rules-and-tags</td></tr>
+<tr><td rowspan="1" colspan="3">create-s-group-from-dashboard-with-HTTP-HTTPS-cICMP-to-default-1-tag</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -17,43 +17,28 @@
 	<td></td>
 </tr>
 <tr>
-	<td>setTimeout</td>
-	<td>120000</td>
-	<td></td>
-</tr>
-<tr>
 	<td>echo</td>
-	<td>Goes to Security Group Landing page through the menus, and creates a new security geroup.</td>
+	<td>Security group with HTTP, HTTPS and ICMP to default gr created from Dashboard.</td>
 	<td></td>
 </tr>
 <tr>
 	<td>assertVisible</td>
-	<td>id=resource-menu-netsec</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=resource-menu-netsec</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>id=resource-menuitem-securitygroups</td>
+	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=resource-menuitem-securitygroups</td>
+	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>id=create-securitygroup-btn</td>
+	<td>link=Create security group</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=create-securitygroup-btn</td>
+	<td>link=Create security group</td>
 	<td></td>
 </tr>
 <tr>
@@ -69,12 +54,12 @@
 <tr>
 	<td>store</td>
 	<td>group${str}</td>
-	<td>group_1</td>
+	<td>s_group_name</td>
 </tr>
 <tr>
 	<td>type</td>
 	<td>id=description</td>
-	<td>test</td>
+	<td>Group with HTTP created by UI test from Dashboard.</td>
 </tr>
 <tr>
 	<td>clickAt</td>
@@ -82,14 +67,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>css=a.chosen-single &gt; span</td>
-	<td></td>
-</tr>
-<tr>
 	<td>select</td>
 	<td>name=ip_protocol</td>
-	<td>value=3389</td>
+	<td>value=80</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -107,29 +87,24 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
+	<td>select</td>
+	<td>name=ip_protocol</td>
+	<td>value=443</td>
+</tr>
+<tr>
+	<td>clickAt</td>
 	<td>css=a.chosen-single &gt; span</td>
 	<td></td>
 </tr>
 <tr>
-	<td>select</td>
-	<td>name=ip_protocol</td>
-	<td>value=22</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>name=from_port</td>
-	<td>22</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>name=to_port</td>
-	<td>22</td>
-</tr>
-<tr>
 	<td>click</td>
-	<td>id=sgroup-use-my-ip</td>
+	<td>name=traffictype</td>
 	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=input-cidr-ip</td>
+	<td>0.0.0.0/0</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -142,24 +117,14 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>css=a.chosen-single &gt; span</td>
-	<td></td>
-</tr>
-<tr>
 	<td>select</td>
 	<td>name=ip_protocol</td>
-	<td>value=tcp</td>
+	<td>value=icmp</td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>name=from_port</td>
-	<td>22</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>name=to_port</td>
-	<td>29</td>
+	<td>clickAt</td>
+	<td>css=a.chosen-single &gt; span</td>
+	<td></td>
 </tr>
 <tr>
 	<td>click</td>
@@ -184,12 +149,12 @@
 <tr>
 	<td>type</td>
 	<td>//div[@id='tag-editor']/div[2]/div[3]/div/div/input</td>
-	<td>color</td>
+	<td>${tag_key}</td>
 </tr>
 <tr>
 	<td>type</td>
 	<td>css=input.taginput.value</td>
-	<td>red</td>
+	<td>${tag_value}</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -211,6 +176,32 @@
 	<td>${breadcrumbs}</td>
 	<td></td>
 </tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Security groups</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>link=${s_group_name}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeAttribute</td>
+	<td>//td/a[text()=&quot;${s_group_name}&quot;]@href</td>
+	<td>store</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['store'].slice(16,27);</td>
+	<td>s_group_id</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${s_group_id}</td>
+	<td></td>
+</tr>
+
 </tbody></table>
 </body>
 </html>

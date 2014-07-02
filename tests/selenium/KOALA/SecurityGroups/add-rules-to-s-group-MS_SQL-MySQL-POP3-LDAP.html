@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>create-s-group-with-rules-and-tags</title>
+<title>add-rules-to-s-group-MS_SQL-MySQL-POP3-LDAP</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">create-s-group-with-rules-and-tags</td></tr>
+<tr><td rowspan="1" colspan="3">add-rules-to-s-group-MS_SQL-MySQL-POP3-LDAP</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -17,13 +17,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>setTimeout</td>
-	<td>120000</td>
-	<td></td>
-</tr>
-<tr>
 	<td>echo</td>
-	<td>Goes to Security Group Landing page through the menus, and creates a new security geroup.</td>
+	<td>Takes s_group_helper_name as parameter.</td>
 	<td></td>
 </tr>
 <tr>
@@ -48,33 +43,13 @@
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>id=create-securitygroup-btn</td>
+	<td>link=${s_group_name}</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=create-securitygroup-btn</td>
+	<td>link=${s_group_name}</td>
 	<td></td>
-</tr>
-<tr>
-	<td>storeEval</td>
-	<td>(Math.random().toString(36)+&quot;000000000&quot;).slice(2,7);</td>
-	<td>str</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=name</td>
-	<td>group${str}</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>group${str}</td>
-	<td>group_1</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=description</td>
-	<td>test</td>
 </tr>
 <tr>
 	<td>clickAt</td>
@@ -89,7 +64,7 @@
 <tr>
 	<td>select</td>
 	<td>name=ip_protocol</td>
-	<td>value=3389</td>
+	<td>value=1433</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -114,22 +89,12 @@
 <tr>
 	<td>select</td>
 	<td>name=ip_protocol</td>
-	<td>value=22</td>
+	<td>value=3306</td>
 </tr>
 <tr>
 	<td>type</td>
-	<td>name=from_port</td>
-	<td>22</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>name=to_port</td>
-	<td>22</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=sgroup-use-my-ip</td>
-	<td></td>
+	<td>id=input-cidr-ip</td>
+	<td>0.0.0.0/0</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -149,17 +114,32 @@
 <tr>
 	<td>select</td>
 	<td>name=ip_protocol</td>
-	<td>value=tcp</td>
+	<td>value=110</td>
 </tr>
 <tr>
 	<td>type</td>
-	<td>name=from_port</td>
-	<td>22</td>
+	<td>id=input-cidr-ip</td>
+	<td>0.0.0.0/0</td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>name=to_port</td>
-	<td>29</td>
+	<td>click</td>
+	<td>id=button-add-rule</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAt</td>
+	<td>css=a.chosen-single &gt; span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=a.chosen-single &gt; span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>name=ip_protocol</td>
+	<td>value=389</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -174,7 +154,7 @@
 <tr>
 	<td>select</td>
 	<td>id=groupname-select</td>
-	<td>value=default</td>
+	<td>value=${s_group_helper_name}</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -182,35 +162,11 @@
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>//div[@id='tag-editor']/div[2]/div[3]/div/div/input</td>
-	<td>color</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>css=input.taginput.value</td>
-	<td>red</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=add-tag-btn</td>
-	<td></td>
-</tr>
-<tr>
 	<td>clickAndWait</td>
-	<td>id=create-securitygroup-btn</td>
+	<td>id=save-securitygroup-btn</td>
 	<td></td>
 </tr>
-<tr>
-	<td>storeText</td>
-	<td>id=notifications</td>
-	<td>breadcrumbs</td>
-</tr>
-<tr>
-	<td>echo</td>
-	<td>${breadcrumbs}</td>
-	<td></td>
-</tr>
+
 </tbody></table>
 </body>
 </html>
