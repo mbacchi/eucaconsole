@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>delete-key-pair-from-detail-page</title>
+<title>verify-key-pair-not-present-via-search</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">delete-key-pair-from-detail-page</td></tr>
+<tr><td rowspan="1" colspan="3">verify-key-pair-not-present-via-search</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -32,55 +32,56 @@
 	<td></td>
 </tr>
 <tr>
-	<td>assertVisible</td>
-	<td>css=#key-pairs &gt; div.tile &gt; div.content &gt; a &gt; i.icon</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>css=#key-pairs &gt; div.tile &gt; div.content &gt; a &gt; i.icon</td>
-	<td></td>
-</tr>
-<tr>
 	<td>waitForVisible</td>
-	<td>link=${keypair_name}</td>
+	<td>id=resource-menu-netsec</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>link=${keypair_name}</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>//ul[@id='actions-dropdown']/../span</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAt</td>
-	<td>//ul[@id='actions-dropdown']/../span</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=delete-keypair-action</td>
+	<td>id=resource-menu-netsec</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=delete_keypair_submit_button</td>
+	<td>id=resource-menuitem-keypairs</td>
 	<td></td>
 </tr>
 <tr>
-	<td>storeText</td>
-	<td>id=notifications</td>
-	<td>breadcrumbs</td>
+	<td>store</td>
+	<td></td>
+	<td>empty</td>
 </tr>
 <tr>
-	<td>echo</td>
-	<td>${breadcrumbs}</td>
+	<td>waitForVisible</td>
+	<td>//div[@id='results-count']/span</td>
 	<td></td>
 </tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>id=search-filter</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=search-filter</td>
+	<td>${empty}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=search-filter</td>
+	<td>${keypair_name}</td>
+</tr>
+<tr>
+	<td>sendKeys</td>
+	<td>id=search-filter</td>
+	<td>${keypair_name}</td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>//div[@id='tableview']/div/div</td>
+	<td>No items were found ×</td>
+</tr>
+
 </tbody></table>
 </body>
 </html>
