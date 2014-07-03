@@ -4,23 +4,34 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>set-availability-zone-to-second-on-list</title>
+<title>store-snapshot-data-as-snapshot_1</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">set-availability-zone-to-second-on-list</td></tr>
+<tr><td rowspan="1" colspan="3">store-snapshot-data-as-snapshot_1</td></tr>
 </thead><tbody>
 <tr>
 	<td>store</td>
-	<td>${AZ_2}</td>
-	<td>AZ</td>
+	<td>${snapshot_name}</td>
+	<td>snapshot_1_name</td>
 </tr>
 <tr>
 	<td>echo</td>
-	<td>${AZ}</td>
+	<td>${snapshot_1_name}</td>
 	<td></td>
 </tr>
+<tr>
+	<td>store</td>
+	<td>${snapshot_id}</td>
+	<td>snapshot_1_id</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${snapshot_1_id}</td>
+	<td></td>
+</tr>
+
 </tbody></table>
 </body>
 </html>

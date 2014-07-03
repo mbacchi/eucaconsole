@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>create-snapshot-from-volumes-lp</title>
+<title>create-volume-from-snapshot-on-snapshot-lp</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">create-snapshot-from-volumes-lp</td></tr>
+<tr><td rowspan="1" colspan="3">create-volume-from-snapshot-on-snapshot-lp</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -17,7 +17,7 @@
 	<td></td>
 </tr>
 <tr>
-	<td>waitForElementPresent</td>
+	<td>assertVisible</td>
 	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
@@ -27,53 +27,38 @@
 	<td></td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
-	<td>id=resource-menu-dashboard</td>
-	<td></td>
-</tr>
-<tr>
 	<td>clickAndWait</td>
 	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>css=#volumes &gt; div.tile &gt; div.content &gt; a &gt; i.icon</td>
+	<td>css=#snapshots &gt; div.tile &gt; div.content &gt; a &gt; i.icon</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>css=#volumes &gt; div.tile &gt; div.content &gt; a &gt; i.icon</td>
+	<td>css=#snapshots &gt; div.tile &gt; div.content &gt; a &gt; i.icon</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>//span/a[@id=&quot;table-item-dropdown_${volume_id}&quot;]/i</td>
+	<td>id=refresh-btn</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertVisible</td>
+	<td>link=${snapshot_name} (${snapshot_id})</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>//span/a[@id=&quot;table-item-dropdown_${volume_id}&quot;]/i</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>//ul[@id=&quot;item-dropdown_${volume_id}&quot;]/li[2]</td>
+	<td>//span/a[@id=&quot;table-item-dropdown_${snapshot_id}&quot;]/i</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAt</td>
-	<td>//ul[@id=&quot;item-dropdown_${volume_id}&quot;]/li[2]/a</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>css=div.plus</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=div.plus</td>
+	<td>id=create-volume-action-grid-${snapshot_id}</td>
 	<td></td>
 </tr>
 <tr>
@@ -82,34 +67,34 @@
 	<td>str</td>
 </tr>
 <tr>
-	<td>echo</td>
-	<td>${str}</td>
+	<td>waitForVisible</td>
+	<td>id=name</td>
 	<td></td>
 </tr>
 <tr>
+	<td>type</td>
+	<td>id=name</td>
+	<td>volume${str}</td>
+</tr>
+<tr>
 	<td>store</td>
-	<td>snapshot${str}</td>
-	<td>snapshot_name</td>
+	<td>volume${str}</td>
+	<td>volume_name</td>
 </tr>
 <tr>
 	<td>echo</td>
-	<td>${snapshot_name}</td>
+	<td>${volume_name}</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>xpath=(//input[@id='name'])[2]</td>
+	<td>id=zone</td>
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>xpath=(//input[@id='name'])[2]</td>
-	<td>${snapshot_name}</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>xpath=(//textarea[@id='description'])[2]</td>
-	<td>${snapshot_name}</td>
+	<td>select</td>
+	<td>id=zone</td>
+	<td>${AZ}</td>
 </tr>
 <tr>
 	<td>type</td>
@@ -118,27 +103,17 @@
 </tr>
 <tr>
 	<td>type</td>
-	<td>//div[@id='tag-editor']/div[2]/div[3]/div/div[2]/input</td>
+	<td>css=input.taginput.value</td>
 	<td>${tag_value}</td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
-	<td>id=add-tag-btn</td>
-	<td></td>
-</tr>
-<tr>
 	<td>click</td>
 	<td>id=add-tag-btn</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
-	<td>css=input.button.expand</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=input.button.expand</td>
+	<td>clickAndWait</td>
+	<td>id=create_volume_submit_button</td>
 	<td></td>
 </tr>
 <tr>
@@ -153,27 +128,27 @@
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>css=a:contains(&quot;${snapshot_name}&quot;)</td>
+	<td>css=em</td>
 	<td></td>
 </tr>
 <tr>
 	<td>storeText</td>
-	<td>css=a:contains(&quot;${snapshot_name}&quot;)</td>
-	<td>snapshot_name_id</td>
+	<td>css=em</td>
+	<td>volume_name_id</td>
 </tr>
 <tr>
 	<td>echo</td>
-	<td>${snapshot_name_id}</td>
+	<td>${volume_name_id}</td>
 	<td></td>
 </tr>
 <tr>
 	<td>storeEval</td>
-	<td>storedVars['snapshot_name_id'].slice(15,28);</td>
-	<td>snapshot_id</td>
+	<td>storedVars['volume_name_id'].slice(13,25);</td>
+	<td>volume_id</td>
 </tr>
 <tr>
 	<td>echo</td>
-	<td>${snapshot_id}</td>
+	<td>${volume_id}</td>
 	<td></td>
 </tr>
 </tbody></table>
