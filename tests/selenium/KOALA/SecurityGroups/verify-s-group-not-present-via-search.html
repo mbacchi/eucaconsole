@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>create-key-pair-from-landing-page</title>
+<title>verify-s-group-not-present-via-search</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">create-key-pair-from-landing-page</td></tr>
+<tr><td rowspan="1" colspan="3">verify-s-group-not-present-via-search</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -17,22 +17,17 @@
 	<td></td>
 </tr>
 <tr>
-	<td>setTimeout</td>
-	<td>120000</td>
-	<td></td>
-</tr>
-<tr>
 	<td>waitForVisible</td>
 	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
+	<td>click</td>
 	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
+	<td>assertVisible</td>
 	<td>id=resource-menu-netsec</td>
 	<td></td>
 </tr>
@@ -42,50 +37,31 @@
 	<td></td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
-	<td>id=resource-menuitem-keypairs</td>
-	<td></td>
-</tr>
-<tr>
 	<td>clickAndWait</td>
-	<td>id=resource-menuitem-keypairs</td>
+	<td>id=resource-menuitem-securitygroups</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>id=create-keypair-btn</td>
+	<td>css=span.items-found</td>
 	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>id=create-keypair-btn</td>
-	<td></td>
-</tr>
-<tr>
-	<td>storeEval</td>
-	<td>Math.random().toString(36).substring(7);</td>
-	<td>str</td>
 </tr>
 <tr>
 	<td>type</td>
-	<td>id=key-name</td>
-	<td>key${str}</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>key${str}</td>
-	<td>key_2</td>
-</tr>
-<tr>
-	<td>echo</td>
-	<td>${key_2}</td>
+	<td>id=search-filter</td>
 	<td></td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
-	<td>css=button.button</td>
-	<td></td>
+	<td>sendKeys</td>
+	<td>id=search-filter</td>
+	<td>${s_group_name}</td>
 </tr>
+<tr>
+	<td>waitForText</td>
+	<td>//div[@id='tableview']/div/div</td>
+	<td>No items were found ×</td>
+</tr>
+
 </tbody></table>
 </body>
 </html>

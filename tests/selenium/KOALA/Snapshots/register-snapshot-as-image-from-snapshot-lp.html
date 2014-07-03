@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="https://10.111.5.53/" />
-<title>verify-snapshot-status-is-completed-on-lp</title>
+<title>register-snapshot-as-image-from-snapshot-lp</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">verify-snapshot-status-is-completed-on-lp</td></tr>
+<tr><td rowspan="1" colspan="3">register-snapshot-as-image-from-snapshot-lp</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -23,7 +23,7 @@
 </tr>
 <tr>
 	<td>setTimeout</td>
-	<td>250000</td>
+	<td>200000</td>
 	<td></td>
 </tr>
 <tr>
@@ -52,95 +52,86 @@
 	<td></td>
 </tr>
 <tr>
-	<td>storeEval</td>
-	<td>1</td>
-	<td>k</td>
+	<td>click</td>
+	<td>//span/a[@id=&quot;table-item-dropdown_${snapshot_id}&quot;]/i</td>
+	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>//td/a[@href=&quot;/snapshots/${snapshot_id}&quot;]/../../td[2]/span</td>
+	<td>//span/a[@id=&quot;table-item-dropdown_${snapshot_id}&quot;]/i</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAt</td>
+	<td>//ul[@id=&quot;item-dropdown_${snapshot_id}&quot;]/li[3]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>id=name</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>(Math.random().toString(36)+&quot;000000000&quot;).slice(2,7);</td>
+	<td>str</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=name</td>
+	<td>image${str}</td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>id=name</td>
+	<td></td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>image${str}</td>
+	<td>image_name</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${image_name}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=description</td>
+	<td>UI automated test for registering snapshot as image</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=register_snapshot_submit_button</td>
 	<td></td>
 </tr>
 <tr>
 	<td>storeText</td>
-	<td>//td/a[@href=&quot;/snapshots/${snapshot_id}&quot;]/../../td[2]/span</td>
-	<td>status</td>
+	<td>id=notifications</td>
+	<td>breadcrumbs</td>
 </tr>
 <tr>
 	<td>echo</td>
-	<td>javascript{storedVars['status']=${status}};</td>
+	<td>${breadcrumbs}</td>
 	<td></td>
 </tr>
 <tr>
-	<td>echo</td>
-	<td>${status}</td>
-	<td></td>
-</tr>
-<tr>
-	<td>storeEval</td>
-	<td>storedVars['completed']=&quot;completed&quot;;</td>
-	<td></td>
-</tr>
-<tr>
-	<td>echo</td>
-	<td>${completed}</td>
-	<td></td>
-</tr>
-<tr>
-	<td>storeEval</td>
-	<td>storedVars['status']==storedVars['completed']</td>
-	<td>is_completed</td>
-</tr>
-<tr>
-	<td>echo</td>
-	<td>${is_completed}</td>
-	<td></td>
-</tr>
-<tr>
-	<td>echo</td>
-	<td>javascript{storedVars['is_completed']=${is_completed}};</td>
-	<td></td>
-</tr>
-<tr>
-	<td>while</td>
-	<td>${k}&lt;20&amp;&amp;!${is_completed}</td>
-	<td></td>
-</tr>
-<tr>
-	<td>pause</td>
-	<td>30000</td>
+	<td>waitForVisible</td>
+	<td>css=em</td>
 	<td></td>
 </tr>
 <tr>
 	<td>storeText</td>
-	<td>//td/a[@href=&quot;/snapshots/${snapshot_id}&quot;]/../../td[2]/span</td>
-	<td>status</td>
+	<td>css=em</td>
+	<td>image_id</td>
 </tr>
 <tr>
 	<td>echo</td>
-	<td>${status}</td>
+	<td>${image_id}</td>
 	<td></td>
 </tr>
-<tr>
-	<td>storeEval</td>
-	<td>storedVars['status']==storedVars['completed']</td>
-	<td>is_completed</td>
-</tr>
-<tr>
-	<td>echo</td>
-	<td>${is_completed}</td>
-	<td></td>
-</tr>
-<tr>
-	<td>storeEval</td>
-	<td>${k}+1</td>
-	<td>k</td>
-</tr>
-<tr>
-	<td>endWhile</td>
-	<td></td>
-	<td></td>
-</tr>
+
 </tbody></table>
 </body>
 </html>
