@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="http://10.111.5.170:8888/" />
+<link rel="selenium.base" href="https://10.111.5.170/" />
 <title>verify-ec2-instance-quota</title>
 </head>
 <body>
@@ -121,7 +121,81 @@
 	<td>2==${tcount}</td>
 	<td>true</td>
 </tr>
-
+<tr>
+	<td>click</td>
+	<td>css=i.fi-widget</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Terminate</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=terminate_instance_submit_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>terminated</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=i.fi-widget</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Remove from view</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>No items were found</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=launch-instance-btn</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Select</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=number</td>
+	<td>2</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=visit-step-3</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=launch-instance-btn-step3</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>Quota exceeded while trying to create: instance by user:</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeXpathCount</td>
+	<td>//table[1]/tbody/tr</td>
+	<td>tcount</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>1==${tcount}</td>
+	<td>true</td>
+</tr>
 </tbody></table>
 </body>
 </html>
