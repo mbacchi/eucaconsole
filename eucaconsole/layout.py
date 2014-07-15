@@ -56,6 +56,9 @@ class MasterLayout(object):
         self.request = request
         self.version = __version__
         self.home_url = request.application_url
+        self.logo_styles = self.get_logo_styles()
+        self.logobar_height = request.registry.settings.get('logo.bar.height')
+        self.content_bgcolor = request.registry.settings.get('content.background.color')
         self.help_url = request.registry.settings.get('help.url')
         self.support_url = request.registry.settings.get('support.url') or "http://support.eucalyptus.com"
         self.aws_enabled = asbool(request.registry.settings.get('aws.enabled'))
@@ -110,6 +113,15 @@ class MasterLayout(object):
     def help_path(self, help_html):
         path = self.help_html_dir + help_html;
         return self.request.static_path(path);
+
+    def get_logo_styles(self):
+        logo_url = self.request.registry.settings.get('logo.url')
+        logo_width = self.request.registry.settings.get('logo.width', '199px')
+        logo_height = self.request.registry.settings.get('logo.height', '22px')
+        template = 'background-image: url({0}); width: {1}; height: {2};'
+        if logo_url:
+            return template.format(logo_url, logo_width, logo_height)
+        return ''
 
     @staticmethod
     @cache_region('extra_long_term', 'selected_region_label')

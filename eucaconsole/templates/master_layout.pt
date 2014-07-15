@@ -37,10 +37,12 @@
 <div class="off-canvas-wrap">
 <div id="canvaswrap" class="inner-wrap">
     <div id="logobar-wrapper">
-        <nav id="logobar" class="row" metal:define-slot="logobar">
+        <nav id="logobar" class="row" metal:define-slot="logobar"
+             style="${'height: {0}'.format(layout.logobar_height) if layout.logobar_height else ''}">
             <a class="left-off-canvas-toggle" id="offcanvas-icon"
                tal:condition="request.user.is_authenticated()"><i class="fi-list"></i></a>
-            <a id="logo" href="${layout.home_url}" title="${layout.site_title}"></a>
+            <a id="logo" href="${layout.home_url}" title="${layout.site_title}"
+               style="${layout.logo_styles}"></a>
             <section tal:condition="request.user.is_authenticated()" id="user-dropdown-section">
                 <a href="#" data-dropdown="user-dropdown" class="small secondary dropdown">
                     <span class="${layout.cloud_type} username-label">${layout.username_label}</span>
@@ -97,7 +99,8 @@
     </div>
 
     <!-- Main Content -->
-    <section class="main" id="maincontent" role="content">
+    <section class="main" id="maincontent" role="content"
+             style="${'background: {0}'.format(layout.content_bgcolor) if layout.content_bgcolor else ''}">
         <div metal:define-slot="main_content"></div>
     </section>
     <!-- End Main Content -->
