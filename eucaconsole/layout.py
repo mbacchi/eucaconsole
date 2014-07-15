@@ -29,6 +29,8 @@ Layout configuration via pyramid_layout
 See http://docs.pylonsproject.org/projects/pyramid_layout/en/latest/layouts.html
 
 """
+import re
+
 from collections import namedtuple
 from urllib import urlencode
 
@@ -120,6 +122,8 @@ class MasterLayout(object):
         logo_height = self.request.registry.settings.get('logo.height', '22px')
         template = 'background-image: url({0}); width: {1}; height: {2};'
         if logo_url:
+            if re.match(r'^/[^/]', logo_url):
+                logo_url = self.request.static_path('eucaconsole:{0}'.format(logo_url[1:]))
             return template.format(logo_url, logo_width, logo_height)
         return ''
 
