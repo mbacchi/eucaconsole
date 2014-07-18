@@ -49,9 +49,7 @@ from pyramid.security import Authenticated, authenticated_userid
 
 
 class User(object):
-    """Authenticated/Anonymous User object for Pyramid Auth.
-       Note: This is not an IAM User object (maybe not yet anyway)
-    """
+    """Authenticated/Anonymous User object for Pyramid Auth."""
     def __init__(self, user_id=None):
         self.user_id = user_id
 
@@ -66,6 +64,20 @@ class User(object):
     def is_authenticated(self):
         """user_id will be None if the user isn't authenticated"""
         return self.user_id
+
+    @staticmethod
+    def get_account_id(ec2_conn=None, request=None):
+        """Get 12-digit account ID for the currently signed-in user's account using the default security group"""
+        from ..views import boto_error_handler
+        account_id = ""
+        if ec2_conn and request:
+            with boto_error_handler(request):
+                security_groups = ec2_conn.get_all_security_groups(filters={'group-name': 'default'})
+                security_group = security_groups[0] if security_groups else None 
+                if security_group is not None:
+                    account_id = security_group.owner_id
+        return account_id
+                    
 
 
 class ConnectionManager(object):

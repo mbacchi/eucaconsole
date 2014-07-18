@@ -15,11 +15,13 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
         $scope.imageLocation = '';
         $scope.urlParams = $.url().param();
         $scope.summarySection = $('.summary');
+        $scope.launchconfigName = '';
         $scope.instanceTypeSelected = '';
         $scope.securityGroup = '';
         $scope.securityGroupsRules = {};
         $scope.securityGroupsIDMap = {};
         $scope.keyPairChoices = {};
+        $scope.keyPair = '';
         $scope.newKeyPairName = '';
         $scope.keyPairSelected = '';
         $scope.keyPairModal = $('#create-keypair-modal');
@@ -37,6 +39,10 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
         $scope.step2Invalid = true;
         $scope.step3Invalid = true;
         $scope.imageJsonURL = '';
+        $scope.isNotValid = true;
+        $scope.existsImage = true;
+        $scope.imageIDErrorClass = '';
+        $scope.imageIDNonexistErrorClass = '';
         $scope.initController = function (securityGroupsRulesJson, keyPairChoices,
                                 securityGroupChoices, securityGroupsIDMapJson,
                                 imageJsonURL) {
@@ -108,19 +114,73 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
                 localStorage.setItem('lastsecgroup_lc', $('#securitygroup').find(':selected').val());
             }
         };
+        $scope.checkRequiredInput = function () {
+            if( $scope.currentStepIndex == 1 ){ 
+                if( $scope.isNotValid == false && $scope.imageID.length < 12 ){
+                    // Once invalid ID has been entered, do not enable the button unless the ID length is valid
+                    // This prevents the error to be triggered as user is typing for the first time 
+                    $scope.isNotValid = true;
+                    $scope.imageIDErrorClass = "error";
+                }else if( $scope.imageID === '' || $scope.imageID === undefined || $scope.imageID.length == 0 ){
+                    // Do not enable the button if the input is empty. However, raise no error message
+                    $scope.isNotValid = true;
+                    $scope.imageIDErrorClass = "";
+                }else if( $scope.imageID.length > 12 ){
+                    // If the imageID length is longer then 12, disable the button and raise error message
+                    $scope.isNotValid = true;
+                    $scope.imageIDErrorClass = "error";
+                }else if( $scope.imageID.length >= 4 &&  $scope.imageID.substring(0, 4) != "emi-" && $scope.imageID.substring(0, 4) != "ami-" ){ 
+                    // If the imageID length is longer than 4, and they do not consist of "emi-" or "ami-", disable the button and raise error message
+                    $scope.isNotValid = true;
+                    $scope.imageIDErrorClass = "error";
+                }else if( $scope.imageID.length == 12 ){
+                    // If the above conditions are met and the image ID length is 12, enable the button
+                    $scope.isNotValid = false;
+                    $scope.imageIDErrorClass = "";
+                }
+            }else if( $scope.currentStepIndex == 2 ){
+                if( $scope.launchconfigName === '' || $scope.launchconfigName === undefined ){
+                    $scope.isNotValid = true;
+                }else{
+                    $scope.isNotValid = false;
+                }
+            }else if( $scope.currentStepIndex == 3 ){
+                if( $scope.keyPair === '' || $scope.keyPair === undefined ){
+                    $scope.isNotValid = true;
+                }else{
+                    $scope.isNotValid = false;
+                }
+            }
+        };
         $scope.setWatcher = function (){
             $scope.$watch('currentStepIndex', function(){
                  if( $scope.currentStepIndex != 1 ){
                      $scope.setWizardFocus($scope.currentStepIndex);
                  }
+                $scope.checkRequiredInput();
             });
             $scope.$watch('securityGroup', function(){
                 $scope.updateSecurityGroup();
             });
             $scope.$watch('imageID', function(newID, oldID){
-                if (newID != oldID) {
+                // Clear the image ID existence check variables
+                $scope.existsImage = true;
+                $scope.imageIDNonexistErrorClass = "";
+                if (newID != oldID && $scope.imageID.length == 12) {
                     $scope.loadImageInfo(newID);
                 }
+                $scope.checkRequiredInput();
+            });
+            $scope.$watch('existsImage', function(newValue, oldValue){
+                if( newValue != oldValue &&  $scope.existsImage == false ){
+                    $scope.isNotValid = true;
+                }
+            });
+            $scope.$watch('launchconfigName', function(){
+                $scope.checkRequiredInput();
+            });
+            $scope.$watch('keyPair', function(){
+                $scope.checkRequiredInput();
             });
             $(document).on('open', '[data-reveal]', function () {
                 // When a dialog opens, reset the progress button status
@@ -151,7 +211,7 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 method: 'GET',
                 url: $scope.imageJsonURL.replace('_id_', id),
-                data: '',
+                data: ''
             }).success(function (oData) {
                 var item = oData.results;
                 $scope.imageName = item.name;
@@ -160,6 +220,11 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
                 $scope.imageLocation = item.location;
                 $scope.summarySection.find('.step1').removeClass('hide');
                 $scope.$broadcast('setBDM', item.block_device_mapping);
+                $scope.existsImage = true;
+                $scope.imageIDNonexistErrorClass = "";
+            }).error(function (oData) {
+                $scope.existsImage = false;
+                $scope.imageIDNonexistErrorClass = "error";
             });
         };
         $scope.setFocus = function () {
@@ -204,9 +269,14 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
             var currentStep = nextStep - 1,
                 tabContent = $scope.launchForm.find('#step' + currentStep),
                 invalidFields = tabContent.find('[data-invalid]');
-            if (invalidFields.length) {
+            if (invalidFields.length || $scope.isNotValid === true) {
                 invalidFields.focus();
                 $event.preventDefault();
+                // Handle the case where the tab was clicked to visit the previous step
+                if( $scope.currentStepIndex > nextStep){
+                    $scope.currentStepIndex = nextStep;
+                    $scope.checkRequiredInput();
+                }
                 return false;
             }
             if (nextStep == 2 && $scope.step1Invalid) { $scope.clearErrors(2); $scope.step1Invalid = false; }
@@ -235,6 +305,7 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
                 // Unhide appropriate step in summary
                 $scope.summarySection.find('.step' + nextStep).removeClass('hide');
                 $scope.currentStepIndex = nextStep;
+                $scope.checkRequiredInput();
             },50);
         };
         $scope.clearErrors = function(step) {
@@ -249,6 +320,7 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
             $scope.imageRootDeviceType = item.root_device_type;
             $scope.imageLocation = item.location;
             $scope.summarySection.find('.step1').removeClass('hide');
+            $scope.checkRequiredInput();
         });
         $scope.downloadKeyPair = function ($event, downloadUrl) {
             $event.preventDefault();
@@ -280,6 +352,7 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
                 // Add new key pair to choices and set it as selected
                 $scope.keyPairChoices[$scope.newKeyPairName] = $scope.newKeyPairName;
                 $scope.keyPair = $scope.newKeyPairName;
+                Notify.success(oData.message);
             }).error(function (oData) {
                 $scope.isLoadingKeyPair = false;
                 if (oData.message) {
@@ -313,6 +386,7 @@ angular.module('LaunchConfigWizard', ['ImagePicker', 'BlockDeviceMappingEditor',
                 $('textarea#rules').val('');
                 var modal = $scope.securityGroupModal;
                 modal.foundation('reveal', 'close');
+                Notify.success(oData.message);
             }).error(function (oData) {
                 $scope.isLoadingSecurityGroup = false;
                 if (oData.message) {

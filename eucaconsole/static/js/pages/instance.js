@@ -13,6 +13,7 @@ angular.module('InstancePage', ['TagEditor'])
         // 'shutting-down' = terminating state
         $scope.transitionalStates = ['pending', 'stopping', 'shutting-down'];
         $scope.instanceState = '';
+        $scope.isNotChanged = true;
         $scope.isUpdating = false;
         $scope.isNotStopped = $scope.instanceState != 'stopped';
         $scope.instanceForm = $('#instance-form');
@@ -64,7 +65,8 @@ angular.module('InstancePage', ['TagEditor'])
             $(document).on('opened', '[data-reveal]', function () {
                 var modal = $(this);
                 var modalID = $(this).attr('id');
-                if( modalID.match(/terminate/)  || modalID.match(/delete/) || modalID.match(/release/) ){
+                if( modalID.match(/terminate/)  || modalID.match(/delete/) || 
+                    modalID.match(/release/) || modalID.match(/reboot/) ){
                     var closeMark = modal.find('.close-reveal-modal');
                     if(!!closeMark){
                         closeMark.focus();
@@ -81,6 +83,17 @@ angular.module('InstancePage', ['TagEditor'])
             });
         };
         $scope.setWatch = function () {
+            $scope.$on('tagUpdate', function($event) {
+                $scope.isNotChanged = false;
+            });
+            $(document).on('input', 'input[type="text"]', function () {
+                $scope.isNotChanged = false;
+                $scope.$apply();
+            });
+            $(document).on('change', 'select', function () {
+                $scope.isNotChanged = false;
+                $scope.$apply();
+            });
             $scope.$watch('instanceState', function(){
                 $scope.getIPAddressData();
             });
@@ -114,7 +127,17 @@ angular.module('InstancePage', ['TagEditor'])
         };
         $scope.submitSaveChanges = function($event){
             $event.preventDefault();
-            if( $scope.instanceState == 'stopped' ){
+            // Handle the unsaved tag issue
+            var existsUnsavedTag = false;
+            $('input.taginput').each(function(){
+                if($(this).val() !== ''){
+                    existsUnsavedTag = true;
+                    return false;
+                }
+            });
+            if( existsUnsavedTag ){
+                $('#unsaved-tag-warn-modal').foundation('reveal', 'open');
+            }else if( $scope.instanceState == 'stopped' ){
                 $('#update-instance-modal').foundation('reveal', 'open');
             }else{
                 $scope.instanceForm.submit();

@@ -31,8 +31,7 @@ Forms for Launch Config
 import wtforms
 from wtforms import validators
 
-from pyramid.i18n import TranslationString as _
-
+from ..i18n import _
 from . import BaseSecureForm, ChoicesManager
 
 
@@ -68,7 +67,7 @@ class CreateLaunchConfigForm(BaseSecureForm):
     )
     userdata = wtforms.TextAreaField(label=_(u'User data'))
     userdata_file_helptext = _(u'User data file may not exceed 16 KB')
-    userdata_file = wtforms.FileField(label=_(u''))
+    userdata_file = wtforms.FileField(label='')
     kernel_id = wtforms.SelectField(label=_(u'Kernel ID'))
     ramdisk_id = wtforms.SelectField(label=_(u'RAM disk ID (RAMFS)'))
     monitoring_enabled = wtforms.BooleanField(label=_(u'Enable monitoring'))

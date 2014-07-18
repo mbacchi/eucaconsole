@@ -31,8 +31,7 @@ Forms for Volumes
 import wtforms
 from wtforms import validators
 
-from pyramid.i18n import TranslationString as _
-
+from ..i18n import _
 from . import BaseSecureForm, ChoicesManager, BLANK_CHOICE
 
 
@@ -174,13 +173,13 @@ class AttachForm(BaseSecureForm):
         if self.volume:
             choices = [BLANK_CHOICE]
             for instance in self.instances:
-                if instance.state == "running" and self.volume.zone == instance.placement:
+                if instance.state in ["running", "stopped"] and self.volume.zone == instance.placement:
                     name_tag = instance.tags.get('Name')
                     extra = ' ({name})'.format(name=name_tag) if name_tag else ''
                     vol_name = '{id}{extra}'.format(id=instance.id, extra=extra)
                     choices.append((instance.id, vol_name))
             if len(choices) == 1:
-                prefix = _(u'No available instances in availability zone ')
+                prefix = _(u'No available instances in availability zone')
                 msg = '{0} {1}'.format(prefix, self.volume.zone)
                 choices = [('', msg)]
             self.instance_id.choices = choices

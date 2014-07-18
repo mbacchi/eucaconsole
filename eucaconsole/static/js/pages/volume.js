@@ -14,6 +14,8 @@ angular.module('VolumePage', ['TagEditor'])
         $scope.volumeAttachStatus = '';
         $scope.snapshotId = '';
         $scope.instanceId = '';
+        $scope.isNotValid = true;
+        $scope.isNotChanged = true;
         $scope.isUpdating = false;
         $scope.fromSnapshot = false;
         $scope.volumeSize = 1;
@@ -95,18 +97,35 @@ angular.module('VolumePage', ['TagEditor'])
             });
         };
         $scope.setWatch = function () {
+            $scope.$on('tagUpdate', function($event) {
+                $scope.isNotChanged = false;
+            });
             $scope.$watch('volumeSize', function () {
-                if( $scope.volumeSize < $scope.snapshotSize ){
+                if( $scope.volumeSize < $scope.snapshotSize || $scope.volumeSize === undefined ){
                     $('#volume_size_error').removeClass('hide');
-                    $('#create_volume_submit_button').attr('disabled','disabled');
+                    $scope.isNotValid = true;
                 }else{
                     $('#volume_size_error').addClass('hide');
-                    $('#create_volume_submit_button').removeAttr('disabled');
+                    $scope.isNotValid = false;
                 }
+            });
+            // Handle the unsaved tag issue
+            $(document).on('submit', '#volume-detail-form', function(event) {
+                $('input.taginput').each(function(){
+                    if($(this).val() !== ''){
+                        event.preventDefault(); 
+                        $('#unsaved-tag-warn-modal').foundation('reveal', 'open');
+                        return false;
+                    }
+                });
             });
             $(document).on('submit', '[data-reveal] form', function () {
                 $(this).find('.dialog-submit-button').css('display', 'none');                
                 $(this).find('.dialog-progress-display').css('display', 'block');                
+            });
+            $(document).on('input', 'input[type="text"]', function () {
+                $scope.isNotChanged = false;
+                $scope.$apply();
             });
         };
         $scope.setFocus = function () {
@@ -114,6 +133,8 @@ angular.module('VolumePage', ['TagEditor'])
                 var tabs = $('.tabs').find('a');
                 if( tabs.length > 0 ){
                     tabs.get(0).focus();
+                }else if( $('input[type="text"]').length > 0 ){
+                    $('input[type="text"]').get(0).focus();
                 }
             });
             $(document).on('opened', '[data-reveal]', function () {

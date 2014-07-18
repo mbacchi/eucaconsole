@@ -18,6 +18,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
         $scope.summarySection = $('.summary');
         $scope.instanceNumber = 1;
         $scope.instanceNames = [];
+        $scope.keyPair = '';
         $scope.keyPairChoices = {};
         $scope.newKeyPairName = '';
         $scope.keyPairModal = $('#create-keypair-modal');
@@ -36,6 +37,10 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
         $scope.step2Invalid = true;
         $scope.step3Invalid = true;
         $scope.imageJsonURL = '';
+        $scope.isNotValid = true;
+        $scope.existsImage = true;
+        $scope.imageIDErrorClass = '';
+        $scope.imageIDNonexistErrorClass = '';
         $scope.initController = function (securityGroupsRulesJson, keyPairChoices,
                                 securityGroupChoices, securityGroupsIDMapJson,
                                 imageJsonURL) {
@@ -117,15 +122,68 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
                 $scope.updateTagsPreview();
             });
         };
+        $scope.checkRequiredInput = function () {
+            if( $scope.currentStepIndex == 1 ){ 
+                if( $scope.isNotValid == false && $scope.imageID.length < 12 ){
+                    // Once invalid ID has been entered, do not enable the button unless the ID length is valid
+                    // This prevents the error to be triggered as user is typing for the first time 
+                    $scope.isNotValid = true;
+                    $scope.imageIDErrorClass = "error";
+                }else if( $scope.imageID === '' || $scope.imageID === undefined || $scope.imageID.length == 0 ){
+                    // Do not enable the button if the input is empty. However, raise no error message
+                    $scope.isNotValid = true;
+                    $scope.imageIDErrorClass = "";
+                }else if( $scope.imageID.length > 12 ){
+                    // If the imageID length is longer then 12, disable the button and raise error message
+                    $scope.isNotValid = true;
+                    $scope.imageIDErrorClass = "error";
+                }else if( $scope.imageID.length >= 4 &&  $scope.imageID.substring(0, 4) != "emi-" && $scope.imageID.substring(0, 4) != "ami-" ){ 
+                    // If the imageID length is longer than 4, and they do not consist of "emi-" or "ami-", disable the button and raise error message
+                    $scope.isNotValid = true;
+                    $scope.imageIDErrorClass = "error";
+                }else if( $scope.imageID.length == 12 ){
+                    // If the above conditions are met and the image ID length is 12, enable the button
+                    $scope.isNotValid = false;
+                    $scope.imageIDErrorClass = "";
+                }
+            }else if( $scope.currentStepIndex == 2 ){
+                if( $scope.instanceNumber === '' || $scope.instanceNumber === undefined ){
+                    $scope.isNotValid = true;
+                }else{
+                    $scope.isNotValid = false;
+                }
+            }else if( $scope.currentStepIndex == 3 ){
+                if( $scope.keyPair === '' || $scope.keyPair === undefined ){
+                    $scope.isNotValid = true;
+                }else{
+                    $scope.isNotValid = false;
+                }
+            }
+        };
         $scope.setWatcher = function () {
             $scope.setDialogFocus();
             $scope.$watch('currentStepIndex', function(){
                  $scope.setWizardFocus($scope.currentStepIndex);
             });
             $scope.$watch('imageID', function(newID, oldID){
-                if (newID != oldID) {
+                // Clear the image ID existence check variables
+                $scope.existsImage = true;
+                $scope.imageIDNonexistErrorClass = "";
+                if (newID != oldID && $scope.imageID.length == 12) {
                     $scope.loadImageInfo(newID);
                 }
+                $scope.checkRequiredInput();
+            });
+            $scope.$watch('existsImage', function(newValue, oldValue){
+                if( newValue != oldValue &&  $scope.existsImage == false ){
+                    $scope.isNotValid = true;
+                }
+            });
+            $scope.$watch('instanceNumber', function(){
+                $scope.checkRequiredInput();
+            });
+            $scope.$watch('keyPair', function(){
+                $scope.checkRequiredInput();
             });
             $('#number').on('keyup blur', function () {
                 var val = $(this).val();
@@ -139,7 +197,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 method: 'GET',
                 url: $scope.imageJsonURL.replace('_id_', id),
-                data: '',
+                data: ''
             }).success(function (oData) {
                 var item = oData.results;
                 $scope.imageName = item.name;
@@ -147,6 +205,11 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
                 $scope.imageRootDeviceType = item.root_device_type;
                 $scope.summarySection.find('.step1').removeClass('hide');
                 $scope.$broadcast('setBDM', item.block_device_mapping);
+                $scope.existsImage = true;
+                $scope.imageIDNonexistErrorClass = "";
+            }).error(function (oData) {
+                $scope.existsImage = false;
+                $scope.imageIDNonexistErrorClass = "error";
             });
         };
         $scope.focusEnterImageID = function () {
@@ -223,9 +286,25 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
             var currentStep = nextStep - 1,
                 tabContent = $scope.launchForm.find('#step' + currentStep),
                 invalidFields = tabContent.find('[data-invalid]');
-            if (invalidFields.length > 0) {
+            if (invalidFields.length > 0 || $scope.isNotValid === true) {
                 invalidFields.focus();
                 $event.preventDefault();
+                if( $scope.currentStepIndex > nextStep){
+                    $scope.currentStepIndex = nextStep;
+                    $scope.checkRequiredInput();
+                }
+                return false;
+            }
+            // Handle the unsaved tag issue
+            var existsUnsavedTag = false;
+            $('input.taginput').each(function(){
+                if($(this).val() !== ''){
+                    existsUnsavedTag = true;
+                }
+            });
+            if( existsUnsavedTag ){
+                $event.preventDefault(); 
+                $('#unsaved-tag-warn-modal').foundation('reveal', 'open');
                 return false;
             }
             if (nextStep == 2 && $scope.step1Invalid) { $scope.clearErrors(2); $scope.step1Invalid = false; }
@@ -254,6 +333,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
                 // Unhide appropriate step in summary
                 $scope.summarySection.find('.step' + nextStep).removeClass('hide');
                 $scope.currentStepIndex = nextStep;
+                $scope.checkRequiredInput();
             },50);
         };
         $scope.clearErrors = function(step) {
@@ -267,6 +347,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
             $scope.imagePlatform = item.platform_name;
             $scope.imageRootDeviceType = item.root_device_type;
             $scope.summarySection.find('.step1').removeClass('hide');
+            $scope.checkRequiredInput();
         });
         $scope.buildNumberList = function () {
             // Return a 1-based list of integers of a given size ([1, 2, ... limit])
@@ -316,6 +397,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
                 // Add new key pair to choices and set it as selected
                 $scope.keyPairChoices[$scope.newKeyPairName] = $scope.newKeyPairName;
                 $scope.keyPair = $scope.newKeyPairName;
+                Notify.success(oData.message);
             }).error(function (oData) {
                 $scope.isLoadingKeyPair = false;
                 if (oData.message) {
@@ -349,6 +431,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
                 $('textarea#rules').val('');
                 var modal = $scope.securityGroupModal;
                 modal.foundation('reveal', 'close');
+                Notify.success(oData.message);
             }).error(function (oData) {
                 $scope.isLoadingSecurityGroup = false;
                 if (oData.message) {
