@@ -3,7 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="https://10.111.5.170/" />
 <title>verify-ec2-instance-quota</title>
 </head>
 <body>
@@ -37,14 +36,44 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForTextPresent</td>
+	<td>items found</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeXpathCount</td>
+	<td>//table[1]/tbody/tr</td>
+	<td>tcount1</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${tcount1}</td>
+	<td></td>
+</tr>
+<tr>
 	<td>clickAndWait</td>
 	<td>id=launch-instance-btn</td>
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>link=Select</td>
+	<td>waitForVisible</td>
+	<td>css=span.image-id.ng-binding</td>
+	<td>image</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=span.image-id.ng-binding</td>
+	<td>image</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${image}</td>
 	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=image-id-input</td>
+	<td>${image}</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -82,9 +111,24 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>link=Select</td>
+	<td>waitForVisible</td>
+	<td>css=span.image-id.ng-binding</td>
+	<td>image</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=span.image-id.ng-binding</td>
+	<td>image</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${image}</td>
 	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=image-id-input</td>
+	<td>${image}</td>
 </tr>
 <tr>
 	<td>type</td>
@@ -112,13 +156,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForTextPresent</td>
+	<td>items found</td>
+	<td></td>
+</tr>
+<tr>
 	<td>storeXpathCount</td>
 	<td>//table[1]/tbody/tr</td>
-	<td>tcount</td>
+	<td>tcount2</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>2==${tcount}</td>
+	<td>${tcount1}+1==${tcount2}</td>
 	<td>true</td>
 </tr>
 <tr>
@@ -153,7 +202,7 @@
 </tr>
 <tr>
 	<td>waitForTextPresent</td>
-	<td>No items were found</td>
+	<td>items found</td>
 	<td></td>
 </tr>
 <tr>
@@ -162,8 +211,28 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForVisible</td>
+	<td>css=span.image-id.ng-binding</td>
+	<td>image</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=span.image-id.ng-binding</td>
+	<td>image</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${image}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=image-id-input</td>
+	<td>${image}</td>
+</tr>
+<tr>
 	<td>click</td>
-	<td>link=Select</td>
+	<td>css=#visit-step-2 &gt; span</td>
 	<td></td>
 </tr>
 <tr>
@@ -187,13 +256,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForTextPresent</td>
+	<td>items found</td>
+	<td></td>
+</tr>
+<tr>
 	<td>storeXpathCount</td>
 	<td>//table[1]/tbody/tr</td>
-	<td>tcount</td>
+	<td>tcount2</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>1==${tcount}</td>
+	<td>${tcount1}==${tcount2}</td>
 	<td>true</td>
 </tr>
 </tbody></table>

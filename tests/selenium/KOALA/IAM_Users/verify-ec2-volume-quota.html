@@ -3,7 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="http://10.111.5.170:8888/" />
 <title>verify-ec2-volume-quota</title>
 </head>
 <body>
@@ -44,6 +43,21 @@
 <tr>
 	<td>clickAndWait</td>
 	<td>id=resource-menuitem-volumes</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>items found</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeXpathCount</td>
+	<td>//table[1]/tbody/tr</td>
+	<td>tcount1</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${tcount1}</td>
 	<td></td>
 </tr>
 <tr>
@@ -97,13 +111,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForTextPresent</td>
+	<td>items found</td>
+	<td></td>
+</tr>
+<tr>
 	<td>storeXpathCount</td>
 	<td>//table[1]/tbody/tr</td>
-	<td>tcount</td>
+	<td>tcount2</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>3==${tcount}</td>
+	<td>${tcount1}+1==${tcount2}</td>
 	<td>true</td>
 </tr>
 <tr>

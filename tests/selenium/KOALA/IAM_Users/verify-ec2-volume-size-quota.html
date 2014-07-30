@@ -3,7 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="https://10.111.5.170/" />
 <title>verify-ec2-volume-size-quota</title>
 </head>
 <body>
@@ -47,6 +46,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForTextPresent</td>
+	<td>items found</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeXpathCount</td>
+	<td>//table[1]/tbody/tr</td>
+	<td>tcount1</td>
+</tr>
+<tr>
 	<td>clickAndWait</td>
 	<td>id=create-volume-btn</td>
 	<td></td>
@@ -74,14 +83,13 @@
 <tr>
 	<td>storeXpathCount</td>
 	<td>//table[1]/tbody/tr</td>
-	<td>tcount</td>
+	<td>tcount2</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>2==${tcount}</td>
+	<td>${tcount1}==${tcount2}</td>
 	<td>true</td>
 </tr>
-
 </tbody></table>
 </body>
 </html>
