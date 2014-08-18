@@ -3,13 +3,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>create-ec2-quotas</title>
+<title>verify-user_1-monitor-only-policy</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">create-ec2-quotas</td></tr>
+<tr><td rowspan="1" colspan="3">verify-user_1-monitor-only-policy</td></tr>
 </thead><tbody>
+<tr>
+	<td>setSpeed</td>
+	<td>500</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setTimeout</td>
+	<td>120000</td>
+	<td></td>
+</tr>
 <tr>
 	<td>selectWindow</td>
 	<td>null</td>
@@ -41,74 +51,39 @@
 	<td></td>
 </tr>
 <tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_images</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_instances</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_volumes</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_volume_size</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_snapshots</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_elastic_ip</td>
-</tr>
-<tr>
 	<td>click</td>
-	<td>css=span.title &gt; a &gt; span</td>
+	<td>link=EC2</td>
 	<td></td>
 </tr>
 <tr>
-	<td>sendKeys</td>
+	<td>verifyValue</td>
 	<td>id=ec2_images_max</td>
 	<td>${ec2_images}</td>
 </tr>
 <tr>
-	<td>sendKeys</td>
+	<td>verifyValue</td>
 	<td>id=ec2_instances_max</td>
 	<td>${ec2_instances}</td>
 </tr>
 <tr>
-	<td>sendKeys</td>
+	<td>verifyValue</td>
 	<td>id=ec2_volumes_max</td>
 	<td>${ec2_volumes}</td>
 </tr>
 <tr>
-	<td>sendKeys</td>
+	<td>verifyValue</td>
 	<td>id=ec2_total_size_all_vols</td>
 	<td>${ec2_volume_size}</td>
 </tr>
 <tr>
-	<td>sendKeys</td>
+	<td>verifyValue</td>
 	<td>id=ec2_snapshots_max</td>
 	<td>${ec2_snapshots}</td>
 </tr>
 <tr>
-	<td>sendKeys</td>
+	<td>verifyValue</td>
 	<td>id=ec2_elastic_ip_max</td>
 	<td>${ec2_elastic_ip}</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=save-quotas-btn</td>
-	<td></td>
 </tr>
 </tbody></table>
 </body>

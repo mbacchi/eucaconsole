@@ -11,6 +11,26 @@
 <tr><td rowspan="1" colspan="3">create-ec2-quotas</td></tr>
 </thead><tbody>
 <tr>
+	<td>store</td>
+	<td>1</td>
+	<td>s3_buckets</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>1</td>
+	<td>s3_objects</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>1</td>
+	<td>s3_bucket_size</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>1</td>
+	<td>s3_total_size</td>
+</tr>
+<tr>
 	<td>selectWindow</td>
 	<td>null</td>
 	<td></td>
@@ -41,69 +61,29 @@
 	<td></td>
 </tr>
 <tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_images</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_instances</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_volumes</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_volume_size</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_snapshots</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>1</td>
-	<td>ec2_elastic_ip</td>
-</tr>
-<tr>
 	<td>click</td>
 	<td>css=span.title &gt; a &gt; span</td>
 	<td></td>
 </tr>
 <tr>
 	<td>sendKeys</td>
-	<td>id=ec2_images_max</td>
-	<td>${ec2_images}</td>
+	<td>id=s3_buckets_max</td>
+	<td>${s3_buckets}</td>
 </tr>
 <tr>
 	<td>sendKeys</td>
-	<td>id=ec2_instances_max</td>
-	<td>${ec2_instances}</td>
+	<td>id=s3_objects_per_max</td>
+	<td>${s3_objects}</td>
 </tr>
 <tr>
 	<td>sendKeys</td>
-	<td>id=ec2_volumes_max</td>
-	<td>${ec2_volumes}</td>
+	<td>id=s3_bucket_size</td>
+	<td>${s3_bucket_size}</td>
 </tr>
 <tr>
 	<td>sendKeys</td>
-	<td>id=ec2_total_size_all_vols</td>
-	<td>${ec2_volume_size}</td>
-</tr>
-<tr>
-	<td>sendKeys</td>
-	<td>id=ec2_snapshots_max</td>
-	<td>${ec2_snapshots}</td>
-</tr>
-<tr>
-	<td>sendKeys</td>
-	<td>id=ec2_elastic_ip_max</td>
-	<td>${ec2_elastic_ip}</td>
+	<td>id=s3_total_size_all_buckets</td>
+	<td>${s3_total_size}</td>
 </tr>
 <tr>
 	<td>click</td>
