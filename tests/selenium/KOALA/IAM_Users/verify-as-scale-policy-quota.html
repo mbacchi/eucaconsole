@@ -56,6 +56,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>storeXpathCount</td>
+	<td>//div[contains(@class, 'tile item policy')]</td>
+	<td>divcount1</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${divcount1}</td>
+	<td></td>
+</tr>
+<tr>
 	<td>clickAndWait</td>
 	<td>css=div.plus</td>
 	<td></td>
@@ -129,6 +139,26 @@
 	<td>clickAndWait</td>
 	<td>id=create-policy-btn</td>
 	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Request would exceed quota for type: Policies</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeXpathCount</td>
+	<td>//div[contains(@class, 'tile item policy')]</td>
+	<td>divcount2</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${divcount2}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${divcount1} + 1 == ${divcount2}</td>
+	<td>true</td>
 </tr>
 </tbody></table>
 </body>
