@@ -5,9 +5,10 @@
  */
 
 // Image page includes the tag editor, so pull in that module as well.
-angular.module('ImagePage', ['TagEditor'])
+angular.module('ImagePage', ['BlockDeviceMappingEditor', 'TagEditor'])
     .controller('ImagePageCtrl', function ($scope) {
         $scope.isNotChanged = true;
+        $scope.disabledExplanationVisible = false;
         $scope.initController = function (){
             $scope.setWatch();
             $scope.setFocus();

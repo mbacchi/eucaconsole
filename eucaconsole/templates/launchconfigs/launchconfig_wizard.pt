@@ -8,7 +8,7 @@
     <div class="row" id="contentwrap" ng-app="LaunchConfigWizard" ng-controller="LaunchConfigWizardCtrl"
          ng-init="initController('${securitygroups_rules_json}', '${keypair_choices_json}',
                                 '${securitygroup_choices_json}', '${securitygroups_id_map_json}',
-                                '${request.route_path('image_json', id='_id_')}')">
+                                '${role_choices_json}', '${request.route_path('image_json', id='_id_')}')">
         <metal:breadcrumbs metal:use-macro="layout.global_macros['breadcrumbs']">
             <metal:crumbs metal:fill-slot="crumbs">
                 <li><a href="${request.route_path('launchconfigs')}" i18n:translate="">Launch configurations</a></li>
@@ -76,10 +76,16 @@
                                 </div>
                             </div>
                             <hr />
+                            <div>
+                                <label>
+                                    <span class="req">*</span>
+                                    <span i18n:translate="">Required fields</span>
+                                </label>
+                            </div>
                             <div class="row">
                                 <div class="small-3 columns">&nbsp;</div>
                                 <div class="small-9 columns field inline">
-                                    <a id="visit-step-3" class="button small round" ng-click="visitNextStep(3, $event)">
+                                    <a id="visit-step-3" class="button small round" ng-click="visitNextStep(3, $event)" ng-disabled="isNotValid">
                                         <span i18n:translate="">Next</span>
                                     </a>
                                 </div>
@@ -124,12 +130,28 @@
                             </div>
                             ${panel('securitygroup_rules_preview')}
                             <hr />
+                            <p class="description" i18n:translate="">Specify a role to grant special access to this instance.</p>
+                            <div class="row">
+                                <div class="small-3 columns">
+                                    <label class="right" ng-non-bindable="" i18n:translate="">Role</label>
+                                </div>
+                                <div class="small-9 columns field">
+                                    <select id="role" ng-options="k as v for (k, v) in roleList" ng-model="role" name="role"></select>
+                                </div>
+                            </div>
+                            <hr />
+                            <div>
+                                <label>
+                                    <span class="req">*</span>
+                                    <span i18n:translate="">Required fields</span>
+                                </label>
+                            </div>
                             <div class="row">
                                 <div class="small-3 columns">&nbsp;</div>
                                 <div class="small-9 columns field inline">
                                     ${structure:create_form['create_sg_from_lc']}
                                     ${structure:create_form['create_sg_from_lc'].label}
-                                    <button type="submit" class="button" ng-click="saveOptions()" id="create-launchconfig-btn-step3">
+                                    <button type="submit" class="button" ng-click="saveOptions()" id="create-launchconfig-btn-step3" ng-disabled="isNotValid">
                                         <span i18n:translate="">Create Launch Configuration</span>
                                     </button><br />
                                     <span class="or">Or:</span>
@@ -209,6 +231,10 @@
                     <div class="row">
                         <div class="small-4 columns"><label i18n:translate="" class="right">Security group:</label></div>
                         <div class="small-8 columns value">{{ securityGroup }}</div>
+                    </div>
+                    <div class="row" ng-show="role">
+                        <div class="small-4 columns"><label i18n:translate="" class="right">Role:</label></div>
+                        <div class="small-8 columns value">{{ role }}</div>
                     </div>
                 </div>
                 <div class="section step4 hide">

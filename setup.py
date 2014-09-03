@@ -24,12 +24,38 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import re
 
 from distutils.command.build_py import build_py
 from distutils.command.sdist import sdist
 from setuptools import setup, find_packages
 
 from eucaconsole import __version__
+
+DATA_DIR='/usr/share/'
+
+def get_data_files(path, regex):
+    data_files = []
+    for root, _, filenames in os.walk(path, followlinks=True):
+        files = []
+        for file in filenames:
+            if re.match(regex, file) is not None:
+                files.append(os.path.join(root, file))
+        data_files.append((os.path.join(DATA_DIR, root), files))
+    return data_files
+
+def get_package_files(package_dir, regex):
+    package_files = []
+    if not package_dir.endswith('/'):
+        package_dir = package_dir + '/'
+    for root, _, filenames in os.walk(package_dir, followlinks=True):
+        files = []
+        for file in filenames:
+            package_path = os.path.join(root[len(package_dir):], file)
+            if re.match(regex, package_path) is not None:
+                files.append(package_path)
+        package_files.extend(files)
+    return package_files
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -115,7 +141,7 @@ message_extractors = {'eucaconsole': [
 
 setup(
     name='eucaconsole',
-    version='4.0.1',
+    version=__version__,
     description='Eucalyptus Management Console',
     long_description=README,
     classifiers=[
@@ -129,6 +155,7 @@ setup(
     url='http://www.eucalyptus.com',
     keywords='web pyramid pylons',
     packages=find_packages(),
+    package_data={'eucaconsole': get_package_files('eucaconsole', r'^[static\|templates]\.*')},
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,
@@ -138,6 +165,7 @@ setup(
         'dev': dev_extras,
     },
     message_extractors=message_extractors,
+    data_files=get_data_files("locale", r'.*\.mo$'),
     test_suite="tests",
     entry_points="""\
     [paste.app_factory]
