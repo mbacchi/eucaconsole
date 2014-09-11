@@ -53,12 +53,12 @@
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>link=Associate IP address</td>
+	<td>//ul[@id=&quot;item-dropdown_${instance_id}&quot;]/li[8]/a </td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>link=Associate IP address</td>
+	<td>//ul[@id=&quot;item-dropdown_${instance_id}&quot;]/li[8]/a </td>
 	<td></td>
 </tr>
 <tr>
@@ -67,13 +67,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>echo</td>
+	<td>${ip}</td>
+	<td></td>
+</tr>
+<tr>
 	<td>clickAt</td>
-	<td>link=${ip}</td>
+	<td>//li[text()=&quot;${ip}&quot;]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>css=#associate-ip-to-instance-form &gt; div.dialog-submit-button &gt; button.button.expand</td>
+	<td>id=associate_ip_to_instance_submit_button</td>
 	<td></td>
 </tr>
 </tbody></table>

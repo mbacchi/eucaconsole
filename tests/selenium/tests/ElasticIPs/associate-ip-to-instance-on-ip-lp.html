@@ -53,22 +53,22 @@
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>css=i.fi-widget</td>
+	<td>//a[@id=&quot;table-item-dropdown_${ip_}&quot;]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>css=i.fi-widget</td>
+	<td>//a[@id=&quot;table-item-dropdown_${ip_}&quot;]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>link=Associate with instance</td>
+	<td>//ul[@id=&quot;item-dropdown_${ip_}&quot;]/li[2]/a</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>link=Associate with instance</td>
+	<td>//ul[@id=&quot;item-dropdown_${ip_}&quot;]/li[2]/a</td>
 	<td></td>
 </tr>
 <tr>
@@ -108,10 +108,9 @@
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>css=#associate-ip-modal &gt; form.ng-pristine.ng-valid &gt; div.dialog-submit-button &gt; button.button.expand</td>
+	<td>id=associate_ip_submit_button</td>
 	<td></td>
 </tr>
-
 </tbody></table>
 </body>
 </html>
