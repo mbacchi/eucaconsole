@@ -148,7 +148,7 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>//div[@id='create-keypair-link']/a</td>
+	<td>id=create-keypair-link</td>
 	<td></td>
 </tr>
 <tr>
@@ -202,6 +202,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>click</td>
+	<td>id=create-securitygroup-link</td>
+	<td></td>
+</tr>
+<tr>
 	<td>storeEval</td>
 	<td>(Math.random().toString(36)+&quot;000000000&quot;).slice(2,7);</td>
 	<td>str</td>
@@ -223,7 +228,7 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>//div[@id='create-securitygroup-link']/a</td>
+	<td>id=create-securitygroup-btn</td>
 	<td></td>
 </tr>
 <tr>
@@ -242,12 +247,7 @@
 	<td></td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
-	<td>//div[@id='contentwrap']/div[4]/div[2]/div[3]/div[2]/div</td>
-	<td>${s_group_name}</td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
+	<td>click</td>
 	<td>id=launch-instance-btn-step3</td>
 	<td></td>
 </tr>
@@ -293,7 +293,7 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>//div[@id='tableview']/table/tbody/tr/td/a[@href='/instances/${instance_id}']/../../td[8]/div/a</td>
+	<td>//div[@id='tableview']/table/tbody/tr/td/a[@href='/instances/${instance_id}']/../../td[7]/div/a</td>
 	<td></td>
 </tr>
 <tr>
