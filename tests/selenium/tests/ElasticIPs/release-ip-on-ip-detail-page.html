@@ -4,81 +4,56 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.111.5.153:8888/" />
-<title>associate-ip-to-instance-on-instances-lp</title>
+<title>release-ip-on-ip-detail-page</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">associate-ip-to-instance-on-instances-lp</td></tr>
+<tr><td rowspan="1" colspan="3">release-ip-on-ip-detail-page</td></tr>
 </thead><tbody>
 <tr>
-	<td>setSpeed</td>
-	<td>500</td>
-	<td></td>
-</tr>
-<tr>
-	<td>setTimeout</td>
-	<td>60000</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>id=resource-menu-dashboard</td>
-	<td></td>
-</tr>
-<tr>
 	<td>clickAndWait</td>
 	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
-	<td>css=i.icon</td>
+	<td>click</td>
+	<td>id=resource-menu-netsec</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>css=i.icon</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>css=//td[data-dropdown*=&quot;item-dropdown_${instance_id}&quot;]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=//td[data-dropdown*=&quot;item-dropdown_${instance_id}&quot;]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>//ul[@id=&quot;item-dropdown_${instance_id}&quot;]/li[7]/a </td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>//ul[@id=&quot;item-dropdown_${instance_id}&quot;]/li[7]/a </td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAt</td>
-	<td>css=div &gt; b</td>
+	<td>id=resource-menuitem-eips</td>
 	<td></td>
 </tr>
 <tr>
 	<td>echo</td>
-	<td>${ip}</td>
+	<td>${ip_}</td>
 	<td></td>
 </tr>
 <tr>
-	<td>clickAt</td>
-	<td>//li[text()=&quot;${ip}&quot;]</td>
+	<td>waitForVisible</td>
+	<td>css=//td[data-dropdown*=&quot;item-dropdown_${ip_}&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=//td[data-dropdown*=&quot;item-dropdown_${ip_}&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>//ul[@id=&quot;item-dropdown_${ip_}&quot;]/li[3]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//ul[@id=&quot;item-dropdown_${ip_}&quot;]/li[3]/a</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=associate_ip_to_instance_submit_button</td>
+	<td>css=#release-ip-modal &gt; form.ng-pristine.ng-valid &gt; div.dialog-submit-button &gt; button.button.expand</td>
 	<td></td>
 </tr>
 <tr>
@@ -96,6 +71,7 @@
 	<td>${breadcrumbs}</td>
 	<td></td>
 </tr>
+
 </tbody></table>
 </body>
 </html>
