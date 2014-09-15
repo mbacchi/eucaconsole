@@ -43,22 +43,27 @@
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>link=${volume_name} (${volume_id})</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=${volume_name} (${volume_id})</td>
+	<td>id=refresh-btn</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>link=Actions</td>
+	<td>//td/a[@href='/volumes/${volume_id}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//td/a[@href='/volumes/${volume_id}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>//ul[@id=&quot;actions-dropdown&quot;]/../span</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>link=Actions</td>
+	<td>//ul[@id=&quot;actions-dropdown&quot;]/../span</td>
 	<td></td>
 </tr>
 <tr>
@@ -77,6 +82,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForVisible</td>
+	<td>id=notifications</td>
+	<td></td>
+</tr>
+<tr>
 	<td>storeText</td>
 	<td>id=notifications</td>
 	<td>breadcrumbs</td>
@@ -84,6 +94,96 @@
 <tr>
 	<td>echo</td>
 	<td>${breadcrumbs}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>1</td>
+	<td>k</td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>//td/a[@href=&quot;/volumes/${volume_id}&quot;]/../../td[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//td/a[@href=&quot;/volumes/${volume_id}&quot;]/../../td[2]</td>
+	<td>status</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>javascript{storedVars['status']=${status}};</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${status}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['deleted']=&quot;deleted&quot;;</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${deleted}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['status']==storedVars['deleted']</td>
+	<td>is_deleted</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${is_deleted}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>javascript{storedVars['is_deleted']=${is_deleted}};</td>
+	<td></td>
+</tr>
+<tr>
+	<td>while</td>
+	<td>${k}&lt;20&amp;&amp;!${is_deleted}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>30000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//td/a[@href=&quot;/volumes/${volume_id}&quot;]/../../td[2]</td>
+	<td>status</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${status}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['status']==storedVars['deleted']</td>
+	<td>is_deleted</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${is_deleted}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${k}+1</td>
+	<td>k</td>
+</tr>
+<tr>
+	<td>endWhile</td>
+	<td></td>
 	<td></td>
 </tr>
 </tbody></table>

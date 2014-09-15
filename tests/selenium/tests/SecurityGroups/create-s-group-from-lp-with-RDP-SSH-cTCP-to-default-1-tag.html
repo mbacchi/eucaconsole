@@ -57,24 +57,14 @@
 	<td></td>
 </tr>
 <tr>
-	<td>storeEval</td>
-	<td>(Math.random().toString(36)+&quot;000000000&quot;).slice(2,7);</td>
-	<td>str</td>
-</tr>
-<tr>
 	<td>type</td>
 	<td>id=name</td>
-	<td>group${str}</td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>group${str}</td>
-	<td>s_group_name</td>
+	<td>${s_group_name}</td>
 </tr>
 <tr>
 	<td>type</td>
 	<td>id=description</td>
-	<td>test</td>
+	<td>${s_group_description} from Landing Page</td>
 </tr>
 <tr>
 	<td>clickAt</td>
@@ -202,6 +192,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForVisible</td>
+	<td>id=notifications</td>
+	<td></td>
+</tr>
+<tr>
 	<td>storeText</td>
 	<td>id=notifications</td>
 	<td>breadcrumbs</td>
@@ -209,6 +204,11 @@
 <tr>
 	<td>echo</td>
 	<td>${breadcrumbs}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>link=Security groups</td>
 	<td></td>
 </tr>
 <tr>
