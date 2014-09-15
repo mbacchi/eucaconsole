@@ -42,7 +42,7 @@
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=${user_1}</td>
+	<td>link=${user}</td>
 	<td></td>
 </tr>
 <tr>
@@ -74,6 +74,16 @@
 	<td>verifyValue</td>
 	<td>id=s3_total_size_all_buckets</td>
 	<td>${s3_total_size}</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>id=notifications</td>
+	<td>breadcrumbs</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${breadcrumbs}</td>
+	<td></td>
 </tr>
 </tbody></table>
 </body>
