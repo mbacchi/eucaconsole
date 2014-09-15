@@ -3,17 +3,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>create-ec2-quotas</title>
+<link rel="selenium.base" href="https://www.mozilla.org/" />
+<title>verify-iam-quota</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">create-ec2-quotas</td></tr>
+<tr><td rowspan="1" colspan="3">verify-iam-quota</td></tr>
 </thead><tbody>
 <tr>
-	<td>store</td>
-	<td>1</td>
-	<td>lb_max</td>
+	<td>setSpeed</td>
+	<td>500</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setTimeout</td>
+	<td>120000</td>
+	<td></td>
 </tr>
 <tr>
 	<td>selectWindow</td>
@@ -47,18 +53,28 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>link=Elastic load balancing</td>
+	<td>link=IAM</td>
 	<td></td>
 </tr>
 <tr>
-	<td>sendKeys</td>
-	<td>id=elb_load_balancers_max</td>
-	<td>${lb_max}</td>
+	<td>verifyValue</td>
+	<td>id=iam_groups_max</td>
+	<td>${group_max}</td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>id=save-quotas-btn</td>
-	<td></td>
+	<td>verifyValue</td>
+	<td>id=iam_users_max</td>
+	<td>${users_max}</td>
+</tr>
+<tr>
+	<td>verifyValue</td>
+	<td>id=iam_roles_max</td>
+	<td>${roles_max}</td>
+</tr>
+<tr>
+	<td>verifyValue</td>
+	<td>id=iam_inst_profiles_max</td>
+	<td>${instance_profiles_max}</td>
 </tr>
 <tr>
 	<td>storeText</td>
@@ -70,6 +86,7 @@
 	<td>${breadcrumbs}</td>
 	<td></td>
 </tr>
+
 </tbody></table>
 </body>
 </html>
