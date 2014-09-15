@@ -126,9 +126,19 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyTextPresent</td>
+	<td>storeTextPresent</td>
 	<td>Request would exceed quota for type: launchconfiguration</td>
+	<td>lcquota</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${lcquota}</td>
 	<td></td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${lcquota}</td>
+	<td>true</td>
 </tr>
 <tr>
 	<td>waitForTextPresent</td>

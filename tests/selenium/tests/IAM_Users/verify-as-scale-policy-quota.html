@@ -141,9 +141,19 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyTextPresent</td>
+	<td>storeTextPresent</td>
 	<td>Request would exceed quota for type: Policies</td>
+	<td>polquota</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${polquota}</td>
 	<td></td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${polquota}</td>
+	<td>true</td>
 </tr>
 <tr>
 	<td>storeXpathCount</td>
