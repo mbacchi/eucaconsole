@@ -121,9 +121,19 @@
 	<td></td>
 </tr>
 <tr>
-	<td>assertTextPresent</td>
+	<td>storeTextPresent</td>
 	<td>Request would exceed quota for type: autoscalingroup</td>
+	<td>asquota</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${asquota}</td>
 	<td></td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${asquota}</td>
+	<td>true</td>
 </tr>
 <tr>
 	<td>waitForTextPresent</td>
@@ -139,6 +149,16 @@
 	<td>assertEval</td>
 	<td>${tcount1} + 1==${tcount2}</td>
 	<td>true</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>id=notifications</td>
+	<td>breadcrumbs</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${breadcrumbs}</td>
+	<td></td>
 </tr>
 </tbody></table>
 </body>
