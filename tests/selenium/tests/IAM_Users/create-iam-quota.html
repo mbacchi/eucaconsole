@@ -3,32 +3,33 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>create-ec2-quotas</title>
+<link rel="selenium.base" href="https://www.mozilla.org/" />
+<title>create-iam-quota</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">create-ec2-quotas</td></tr>
+<tr><td rowspan="1" colspan="3">create-iam-quota</td></tr>
 </thead><tbody>
 <tr>
 	<td>store</td>
 	<td>1</td>
-	<td>s3_buckets</td>
+	<td>group_max</td>
 </tr>
 <tr>
 	<td>store</td>
 	<td>1</td>
-	<td>s3_objects</td>
+	<td>users_max</td>
 </tr>
 <tr>
 	<td>store</td>
 	<td>1</td>
-	<td>s3_bucket_size</td>
+	<td>roles_max</td>
 </tr>
 <tr>
 	<td>store</td>
 	<td>1</td>
-	<td>s3_total_size</td>
+	<td>instance_profiles_max</td>
 </tr>
 <tr>
 	<td>selectWindow</td>
@@ -62,28 +63,28 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>css=#s3-section &gt; span.title &gt; a &gt; i.fi-plus</td>
+	<td>css=#iam-section &gt; span.title &gt; a &gt; span</td>
 	<td></td>
 </tr>
 <tr>
 	<td>sendKeys</td>
-	<td>id=s3_buckets_max</td>
-	<td>${s3_buckets}</td>
+	<td>id=iam_groups_max</td>
+	<td>${group_max}</td>
 </tr>
 <tr>
 	<td>sendKeys</td>
-	<td>id=s3_objects_per_max</td>
-	<td>${s3_objects}</td>
+	<td>id=iam_users_max</td>
+	<td>${users_max}</td>
 </tr>
 <tr>
 	<td>sendKeys</td>
-	<td>id=s3_bucket_size</td>
-	<td>${s3_bucket_size}</td>
+	<td>id=iam_roles_max</td>
+	<td>${roles_max}</td>
 </tr>
 <tr>
 	<td>sendKeys</td>
-	<td>id=s3_total_size_all_buckets</td>
-	<td>${s3_total_size}</td>
+	<td>id=iam_inst_profiles_max</td>
+	<td>${instance_profiles_max}</td>
 </tr>
 <tr>
 	<td>click</td>
