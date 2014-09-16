@@ -47,26 +47,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>storeEval</td>
-	<td>(Math.random().toString(36)+&quot;000000000&quot;).slice(2,7);</td>
-	<td>str</td>
-</tr>
-<tr>
-	<td>echo</td>
-	<td>${str}</td>
-	<td></td>
-</tr>
-<tr>
-	<td>store</td>
-	<td>volume${str}</td>
-	<td>volume_name</td>
-</tr>
-<tr>
-	<td>echo</td>
-	<td>${volume_name}</td>
-	<td></td>
-</tr>
-<tr>
 	<td>type</td>
 	<td>id=name</td>
 	<td>${volume_name}</td>
@@ -112,9 +92,94 @@
 	<td></td>
 </tr>
 <tr>
-	<td>waitForText</td>
+	<td>storeEval</td>
+	<td>1</td>
+	<td>k</td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
 	<td>//div[@id='contentwrap']/div[3]/div/form/div/div[2]/span</td>
-	<td>available</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//div[@id='contentwrap']/div[3]/div/form/div/div[2]/span</td>
+	<td>status</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>javascript{storedVars['status']=${status}};</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${status}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['available']=&quot;available&quot;;</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${available}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['status']==storedVars['available']</td>
+	<td>is_available</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${is_available}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>javascript{storedVars['is_available']=${is_available}};</td>
+	<td></td>
+</tr>
+<tr>
+	<td>while</td>
+	<td>${k}&lt;20&amp;&amp;!${is_available}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>20000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//div[@id='contentwrap']/div[3]/div/form/div/div[2]/span</td>
+	<td>status</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${status}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['status']==storedVars['available']</td>
+	<td>is_available</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${is_available}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${k}+1</td>
+	<td>k</td>
+</tr>
+<tr>
+	<td>endWhile</td>
+	<td></td>
+	<td></td>
 </tr>
 <tr>
 	<td>storeText</td>

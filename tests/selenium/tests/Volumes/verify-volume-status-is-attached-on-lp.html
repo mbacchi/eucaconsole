@@ -47,13 +47,103 @@
 	<td></td>
 </tr>
 <tr>
+	<td>storeEval</td>
+	<td>1</td>
+	<td>k</td>
+</tr>
+<tr>
 	<td>waitForVisible</td>
-	<td>//div[@id='tableview']/table/tbody/tr/td/a[@href='/volumes/${volume_id}']/../../td[2]/span</td>
+	<td>//td/a[@href=&quot;/volumes/${volume_id}&quot;]/../../td[2]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//td/a[@href=&quot;/volumes/${volume_id}&quot;]/../../td[2]/span</td>
+	<td>status</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>javascript{storedVars['status']=${status}};</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${status}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['attached']=&quot;attached&quot;;</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${attached}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['status']==storedVars['attached']</td>
+	<td>is_attached</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${is_attached}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>javascript{storedVars['is_attached']=${is_attached}};</td>
+	<td></td>
+</tr>
+<tr>
+	<td>while</td>
+	<td>${k}&lt;20&amp;&amp;!${is_attached}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>30000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//td/a[@href=&quot;/volumes/${volume_id}&quot;]/../../td[2]/span</td>
+	<td>status</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${status}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>storedVars['status']==storedVars['attached']</td>
+	<td>is_attached</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${is_attached}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${k}+1</td>
+	<td>k</td>
+</tr>
+<tr>
+	<td>endWhile</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>//td/a[@href=&quot;/volumes/${volume_id}&quot;]/../../td[2]/span</td>
 	<td></td>
 </tr>
 <tr>
 	<td>assertText</td>
-	<td>//div[@id='tableview']/table/tbody/tr/td/a[@href='/volumes/${volume_id}']/../../td[2]/span</td>
+	<td>//td/a[@href=&quot;/volumes/${volume_id}&quot;]/../../td[2]/span</td>
 	<td>attached</td>
 </tr>
 </tbody></table>
