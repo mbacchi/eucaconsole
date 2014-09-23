@@ -71,9 +71,29 @@
 	<td></td>
 </tr>
 <tr>
+	<td>storeEval</td>
+	<td>(Math.random().toString(36)+&quot;000000000&quot;).slice(2,7);</td>
+	<td>str</td>
+</tr>
+<tr>
 	<td>type</td>
 	<td>id=name</td>
+	<td>lc-${str}</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>lc-${str}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>lc-${str}</td>
 	<td>lc1</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${lc1}</td>
+	<td></td>
 </tr>
 <tr>
 	<td>click</td>
@@ -106,9 +126,24 @@
 	<td></td>
 </tr>
 <tr>
+	<td>storeEval</td>
+	<td>(Math.random().toString(36)+&quot;000000000&quot;).slice(2,7);</td>
+	<td>str1</td>
+</tr>
+<tr>
 	<td>type</td>
 	<td>id=name</td>
+	<td>lc-${str1}</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>lc-${str1}</td>
 	<td>lc2</td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>lc-${str1}</td>
+	<td></td>
 </tr>
 <tr>
 	<td>click</td>
@@ -129,6 +164,11 @@
 	<td>storeTextPresent</td>
 	<td>Request would exceed quota for type: launchconfiguration</td>
 	<td>lcquota</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>id=notifications</td>
+	<td>breadcrumbs</td>
 </tr>
 <tr>
 	<td>echo</td>
@@ -154,11 +194,6 @@
 	<td>assertEval</td>
 	<td>${tcount1} + 1==${tcount2}</td>
 	<td>true</td>
-</tr>
-<tr>
-	<td>storeText</td>
-	<td>id=notifications</td>
-	<td>breadcrumbs</td>
 </tr>
 <tr>
 	<td>echo</td>
