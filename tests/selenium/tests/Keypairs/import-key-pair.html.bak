@@ -3,14 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="https://10.111.5.145" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>create-key-pair-from-landing-page</title>
+<title>import-key-pair</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">create-key-pair-from-landing-page</td></tr>
+<tr><td rowspan="1" colspan="3">import-key-pair</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -18,13 +17,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>assertVisible</td>
-	<td>id=resource-menu-dashboard</td>
+	<td>setTimeout</td>
+	<td>120000</td>
 	<td></td>
 </tr>
 <tr>
-	<td>setTimeout</td>
-	<td>120000</td>
+	<td>assertVisible</td>
+	<td>id=resource-menu-dashboard</td>
 	<td></td>
 </tr>
 <tr>
@@ -54,17 +53,17 @@
 </tr>
 <tr>
 	<td>waitForVisible</td>
-	<td>id=create-keypair-btn</td>
+	<td>link=Import Public Key</td>
 	<td></td>
 </tr>
 <tr>
 	<td>assertVisible</td>
-	<td>id=create-keypair-btn</td>
+	<td>link=Import Public Key</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=create-keypair-btn</td>
+	<td>link=Import Public Key</td>
 	<td></td>
 </tr>
 <tr>
@@ -78,18 +77,23 @@
 	<td>${keypair_name}</td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
-	<td>css=button.button</td>
+	<td>echo</td>
+	<td>${keypair_name}</td>
 	<td></td>
 </tr>
 <tr>
-	<td>storeText</td>
-	<td>id=notifications</td>
-	<td>breadcrumbs</td>
+	<td>waitForVisible</td>
+	<td>id=key-import-contents</td>
+	<td></td>
 </tr>
 <tr>
-	<td>echo</td>
-	<td>${breadcrumbs}</td>
+	<td>sendKeys</td>
+	<td>id=key-import-contents</td>
+	<td>ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDI1x6tEjkBQCCP0ssF69vAgP2xg+N9ScoTrqRqyl5w4qEgsV/AppfHHYRKYr0N/tTyG4/z1XGNrB2SaslnRpgEOsvMZldlOnqsUujL2fgoEg+/gB92+1JhZgTjU8nL5j5BFkVTh93nSHtXHdzYl7SjlXrv26ZbyuDwJmI+s6bJQk5noJ4Q4g7N/0y9pHRvezyhgxkyX7PQoA9WJm8SqlakyhMYa0j/baMhb/ehSI0VvwNodmcaWaS6Z2F4rZS4C2DmCUDXYy/1+0tiRTjHjlPbqRKCVKam8ImWytlZD0zbdV/tpADxDpnhW2cPVpXcjy4sRzUCc8AZW+OE3LQxXild alicehubenko@Alices-MacBook-Pro.local</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=button.button</td>
 	<td></td>
 </tr>
 </tbody></table>

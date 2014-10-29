@@ -3,14 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="https://10.111.5.145" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>create-key-pair-from-landing-page</title>
+<title>create-key-pair-from-dashboard</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">create-key-pair-from-landing-page</td></tr>
+<tr><td rowspan="1" colspan="3">create-key-pair-from-dashboard</td></tr>
 </thead><tbody>
 <tr>
 	<td>setSpeed</td>
@@ -24,7 +23,7 @@
 </tr>
 <tr>
 	<td>setTimeout</td>
-	<td>120000</td>
+	<td>60000</td>
 	<td></td>
 </tr>
 <tr>
@@ -33,43 +32,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>waitForVisible</td>
-	<td>id=resource-menu-netsec</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=resource-menu-netsec</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>id=resource-menuitem-keypairs</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>id=resource-menuitem-keypairs</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>id=create-keypair-btn</td>
-	<td></td>
-</tr>
-<tr>
 	<td>assertVisible</td>
-	<td>id=create-keypair-btn</td>
+	<td>link=Create key pair</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=create-keypair-btn</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>id=key-name</td>
+	<td>link=Create key pair</td>
 	<td></td>
 </tr>
 <tr>

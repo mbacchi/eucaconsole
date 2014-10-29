@@ -3,23 +3,42 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="https://10.111.5.145" />
 <link rel="selenium.base" href="http://10.111.101.112:8888/" />
-<title>store-keypair-name-as-keypair_1</title>
+<title>koala_logout</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">store-keypair-name-as-keypair_1</td></tr>
+<tr><td rowspan="1" colspan="3">koala_logout</td></tr>
 </thead><tbody>
 <tr>
-	<td>store</td>
-	<td>${keypair_name}</td>
-	<td>keypair_1_name</td>
+	<td>setSpeed</td>
+	<td>500</td>
+	<td></td>
 </tr>
 <tr>
-	<td>echo</td>
-	<td>${keypair_1_name}</td>
+	<td>setTimeout</td>
+	<td>60000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertVisible</td>
+	<td>link=admin@ui-test-acct-00</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=admin@ui-test-acct-00</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>id=logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=logout</td>
 	<td></td>
 </tr>
 </tbody></table>
