@@ -461,7 +461,8 @@ class VolumeSnapshotsView(BaseVolumeView):
     def volume_snapshots_json(self):
         with boto_error_handler(self.request):
             snapshots = []
-            for snapshot in self.volume.snapshots():
+            for volume_snapshot in self.volume.snapshots():
+                snapshot = self.get_snapshot(volume_snapshot.id)
                 delete_form_action = self.request.route_path(
                     'volume_snapshot_delete', id=self.volume.id, snapshot_id=snapshot.id)
                 snapshots.append(dict(
