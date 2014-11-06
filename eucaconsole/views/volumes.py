@@ -528,4 +528,6 @@ class VolumeSnapshotsView(BaseVolumeView):
     def is_transitional(snapshot):
         if snapshot.status.lower() == 'completed':
             return False
+        if snapshot.status.lower() == 'pending':
+            return True
         return int(snapshot.progress.replace('%', '')) < 100
