@@ -236,9 +236,6 @@ class SnapshotsJsonView(LandingPageView):
             return True
         return int(snapshot.progress.replace('%', '')) < 100
 
-    def get_snapshot(self, snapshot_id):
-        snapshots_list = self.conn.get_all_snapshots(snapshot_ids=[snapshot_id])
-        return snapshots_list[0] if snapshots_list else None
 
 class SnapshotView(TaggedItemView):
     VIEW_TEMPLATE = '../templates/snapshots/snapshot_view.pt'
