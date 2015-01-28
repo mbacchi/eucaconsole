@@ -40,7 +40,6 @@
                                 Upload file(s)
                             </a>
                         </li>
-                        <!--!
                         <li tal:condition="update_versioning_action == 'enable'">
                             <a ng-click="revealModal('update-versioning')"
                                id="enable-versioning-action" i18n:translate="">Enable versioning</a>
@@ -49,7 +48,6 @@
                             <a ng-click="revealModal('update-versioning')"
                                id="suspend-versioning-action" i18n:translate="">Suspend versioning</a>
                         </li>
-                        -->
                         <li>
                             <a id="delete-bucket-action" data-reveal-id="delete-bucket-modal" i18n:translate="">Delete</a>
                         </li>
