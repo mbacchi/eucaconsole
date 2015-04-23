@@ -439,6 +439,13 @@ class BaseView(object):
             encoded_dict[k] = v
         return encoded_dict
 
+    @staticmethod
+    def option_dict(choices):
+        if choices is None:
+            return []
+        return [{'value': choice[0], 'label':choice[1]} for choice in choices]
+        
+
 
 class TaggedItemView(BaseView):
     """Common view for items that have tags (e.g. security group)"""

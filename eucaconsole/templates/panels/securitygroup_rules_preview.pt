@@ -11,7 +11,7 @@
                     </a>
                     <span class="rule-description-label">
                         <span i18n:translate="">Rules for </span>
-                        {{ securityGroupChoices[groupID] | ellipsis: 30 }}
+                        {{ securityGroupChoicesFullName[groupID] | ellipsis: 30 }}
                     </span>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                         <i class="fi-alert" data-tooltip="" i18n:attributes="title"
                            title="Warning: No rules defined for security group"></i>
                         <span i18n:translate="">Rules for </span>
-                        {{ securityGroupChoices[groupID] | ellipsis: 30 }}
+                        {{ securityGroupChoicesFullName[groupID] | ellipsis: 30 }}
                     </span>
                 </div>
             </div>

@@ -21,11 +21,11 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
         $scope.instanceVPC = 'None';
         $scope.instanceVPCName = '';
         $scope.subnetVPC = 'None';
-        $scope.vpcSubnetList = {};
+        $scope.vpcSubnetList = [];
         $scope.vpcSubnetChoices = {};
         $scope.keyPair = '';
-        $scope.keyPairChoices = {};
-        $scope.newKeyPairName = '';
+        $scope.keyPairChoices = [];
+        $scope.newKeyPairName = '';  // needed by create-keypair-modal
         $scope.keyPairModal = $('#create-keypair-modal');
         $scope.isLoadingKeyPair = false;
         $scope.securityGroups = [];
@@ -57,9 +57,11 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
         $scope.initController = function (optionsJson) {
             var options = JSON.parse(eucaUnescapeJson(optionsJson));
             $scope.keyPairChoices = options.keypair_choices;
+            $scope.keyPair = $scope.keyPairChoices[1];
             $scope.securityGroupChoices = options.securitygroups_choices;
             $scope.vpcSubnetList = options.vpc_subnet_choices;
             $scope.roleList = options.role_choices;
+            $scope.role = $scope.roleList[0];
             $scope.instanceVPC = options.default_vpc_network;
             $scope.securityGroupVPC = options.default_vpc_network;
             $scope.securityGroupJsonEndpoint = options.securitygroups_json_endpoint;
@@ -103,8 +105,12 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
                 $scope.securityGroupVPC = lastVPC;
             }
             var lastKeyPair = Modernizr.localstorage && localStorage.getItem('lastkeypair_inst');
-            if (lastKeyPair !== null && $scope.keyPairChoices[lastKeyPair] !== undefined) {
-                $('#keypair').val(lastKeyPair);
+            if (lastKeyPair !== null) {
+                for (var i=0; i<$scope.keyPairChoices.length; i++) {
+                    if (lastKeyPair == $scope.keyPairChoices[i].value) {
+                        $scope.keyPair = $scope.keyPairChoices[i];
+                    }
+                }
             }
             $scope.keyPair = $('#keypair').find(':selected').val();
             $scope.imageID = $scope.urlParams.image_id || '';
@@ -123,20 +129,27 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
             var lastSecGroup = Modernizr.localstorage && localStorage.getItem('lastsecgroup_inst');
             if (lastSecGroup !== null) {
                 var lastSecGroupArray = lastSecGroup.split(",");
-                angular.forEach(lastSecGroupArray, function (sgroup) {
-                    if ($scope.securityGroupChoices[sgroup] !== undefined) {
-                        $scope.securityGroups.push(sgroup);
+                angular.forEach($scope.securityGroupChoices, function (sgroup) {
+                    if (lastSecGroupArray.indexOf(sgroup.value) > -1) {
+                        $scope.securityGroups.push(sgroup.value);
                         $scope.isSecurityGroupsInitialValuesSet = true;
                     }
                 });
             }
         };
-        $scope.saveOptions = function() {
+        $scope.saveOptions = function($event) {
+            $event.preventDefault();
             if (Modernizr.localstorage) {
                 localStorage.setItem('lastvpc_inst', $scope.instanceVPC);
-                localStorage.setItem('lastkeypair_inst', $('#keypair').find(':selected').val());
+                localStorage.setItem('lastkeypair_inst', $scope.keyPair);
                 localStorage.setItem('lastsecgroup_inst', $scope.securityGroups);
             }
+            // doctor up the security group values first, in-line so it happens before submit
+            var sgroup_options = $('#securitygroup').find('option');
+            for (var i=0; i<sgroup_options.length; i++) {
+                sgroup_options[i].value = sgroup_options[i].value.substring(7);
+            }
+            $('#launch-instance-form').submit();
         };
         $scope.updateTagsPreview = function () {
             // Need timeout to give the tags time to capture in hidden textarea
@@ -488,7 +501,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
                 if (securityGroupName.length > 45) {
                     securityGroupName = securityGroupName.substr(0, 45) + "...";
                 }
-                $scope.securityGroupChoices[newSecurityGroupID] = securityGroupName;
+                $scope.securityGroupChoices.push({value:newSecurityGroupID, label:securityGroupName});
                 $scope.securityGroups.push(newSecurityGroupID);
                 var groupRulesObject = JSON.parse($('#rules').val());
                 var groupRulesEgressObject = JSON.parse($('#rules_egress').val());
@@ -544,7 +557,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
             });
         };
         $scope.updateSecurityGroupChoices = function () {
-            $scope.securityGroupChoices = {};
+            $scope.securityGroupChoices = [];
             $scope.securityGroupChoicesFullName = {};
             if ($.isEmptyObject($scope.securityGroupCollection)) {
                 return;
@@ -556,7 +569,7 @@ angular.module('LaunchInstance', ['TagEditor', 'BlockDeviceMappingEditor', 'Imag
                 if (sGroup.name.length > 45) {
                     securityGroupName = sGroup.name.substr(0, 45) + "...";
                 }
-                $scope.securityGroupChoices[sGroup.id] = securityGroupName;
+                $scope.securityGroupChoices.push({value:sGroup.id, label:securityGroupName});
             }); 
             $scope.restoreSecurityGroupsInitialValues(); 
             // Timeout is needed for chosen to react after Angular updates the options

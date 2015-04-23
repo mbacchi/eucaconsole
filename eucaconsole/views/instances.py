@@ -984,10 +984,10 @@ class InstanceLaunchView(BaseInstanceView, BlockDeviceMappingItemView):
         self.generate_file_form = GenerateFileForm(self.request, formdata=self.request.params or None)
         self.owner_choices = self.get_owner_choices()
         controller_options_json = BaseView.escape_json(json.dumps({
-            'securitygroups_choices': dict(self.launch_form.securitygroup.choices),
-            'keypair_choices': dict(self.launch_form.keypair.choices),
-            'role_choices': dict(self.launch_form.role.choices),
-            'vpc_subnet_choices': self.get_vpc_subnets(),
+            'securitygroups_choices': BaseView.option_dict(self.launch_form.securitygroup.choices),
+            'keypair_choices': BaseView.option_dict(self.launch_form.keypair.choices),
+            'role_choices': BaseView.option_dict(self.launch_form.role.choices),
+            'vpc_subnet_choices': BaseView.option_dict(self.get_vpc_subnets()),
             'default_vpc_network': self.get_default_vpc_network(),
             'securitygroups_json_endpoint': self.request.route_path('securitygroups_json'),
             'securitygroups_rules_json_endpoint': self.request.route_path('securitygroups_rules_json'),
@@ -1010,6 +1010,8 @@ class InstanceLaunchView(BaseInstanceView, BlockDeviceMappingItemView):
     @view_config(route_name='instance_create', renderer=TEMPLATE, request_method='GET')
     def instance_create(self):
         """Displays the Launch Instance wizard"""
+        # When serving page, remove choices from select widgets where ng-options is in charge
+        self.launch_form.keypair.choices = []
         return self.render_dict
 
     @view_config(route_name='instance_launch', renderer=TEMPLATE, request_method='POST')
