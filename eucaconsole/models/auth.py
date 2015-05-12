@@ -135,8 +135,7 @@ class ConnectionManager(object):
                     _region, aws_access_key_id=_access_key, aws_secret_access_key=_secret_key, security_token=_token)
             elif conn_type == 'iam':
                 return None
-            if conn:
-                conn.https_validate_certificates = validate_certs
+            conn.https_validate_certificates = validate_certs
             return conn
 
         return _aws_connection(region, access_key, secret_key, token, conn_type)
@@ -214,8 +213,7 @@ class ConnectionManager(object):
                 conn.auth_region_name = 'Eucalyptus'
 
             setattr(conn, 'APIVersion', api_version)
-            if conn:
-                conn.https_validate_certificates = validate_certs
+            conn.https_validate_certificates = validate_certs
             if certs_file is not None:
                 conn.ca_certificates_file = certs_file
             conn.http_connection_kwargs['timeout'] = 30

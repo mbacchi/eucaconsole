@@ -63,6 +63,10 @@ See http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/testing.html
 import collections
 import unittest
 
+from boto.ec2.cloudwatch import CloudWatchConnection
+from boto.vpc import VPCConnection
+from moto import mock_ec2, mock_cloudwatch
+
 from pyramid import testing
 from webob.multidict import MultiDict
 from wtforms import Field
@@ -78,6 +82,24 @@ from eucaconsole.caches import extra_long_term
 class Mock(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+
+
+class MockVPCMixin(object):
+    @staticmethod
+    @mock_ec2
+    def make_vpc_connection():
+        return VPCConnection(
+            aws_access_key_id='foo', aws_secret_access_key='bar', is_secure=False, validate_certs=False
+        )
+
+
+class MockCloudWatchMixin(object):
+    @staticmethod
+    @mock_cloudwatch
+    def make_cw_connection():
+        return CloudWatchConnection(
+            aws_access_key_id='foo', aws_secret_access_key='bar', is_secure=False, validate_certs=False
+        )
 
 
 class BaseViewTestCase(unittest.TestCase):

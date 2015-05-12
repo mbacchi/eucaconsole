@@ -71,10 +71,10 @@ from ..layout import __version__ as curr_version
 
 class BaseInstanceView(BaseView):
     """Base class for instance-related views"""
-    def __init__(self, request):
-        super(BaseInstanceView, self).__init__(request)
-        self.conn = self.get_connection()
-        self.vpc_conn = self.get_connection(conn_type='vpc')
+    def __init__(self, request, **kwargs):
+        super(BaseInstanceView, self).__init__(request, **kwargs)
+        self.conn = kwargs.get('ec2_conn') or self.get_connection()
+        self.vpc_conn = kwargs.get('vpc_conn') or self.get_connection(conn_type='vpc')
         self.is_vpc_supported = BaseView.is_vpc_supported(request)
 
     def get_instance(self, instance_id=None, reservations=None):
@@ -361,6 +361,7 @@ class InstancesView(LandingPageView, BaseInstanceView):
         self.request.session.flash(msg, queue=Notification.ERROR)
         return HTTPFound(location=self.location)
 
+
 class InstancesJsonView(LandingPageView, BaseInstanceView):
     def __init__(self, request):
         super(InstancesJsonView, self).__init__(request)
@@ -558,14 +559,14 @@ class InstanceJsonView(BaseInstanceView):
 class InstanceView(TaggedItemView, BaseInstanceView):
     VIEW_TEMPLATE = '../templates/instances/instance_view.pt'
 
-    def __init__(self, request, instance=None, **kwargs):
+    def __init__(self, request, **kwargs):
         super(InstanceView, self).__init__(request, **kwargs)
         self.request = request
-        self.conn = self.get_connection()
+        self.conn = kwargs.get('ec2_conn') or self.get_connection()
         self.iam_conn = None
         if BaseView.has_role_access(request):
             self.iam_conn = self.get_connection(conn_type="iam")
-        self.instance = instance or self.get_instance()
+        self.instance = kwargs.get('instance') or self.get_instance()
         self.image = self.get_image(self.instance)
         self.scaling_group = self.get_scaling_group()
         self.instance_form = InstanceForm(
@@ -1003,17 +1004,18 @@ class InstanceVolumesView(BaseInstanceView):
 class InstanceMonitoringView(BaseInstanceView):
     VIEW_TEMPLATE = '../templates/instances/instance_monitoring.pt'
 
-    def __init__(self, request, instance=None):
-        super(InstanceMonitoringView, self).__init__(request)
+    def __init__(self, request, **kwargs):
+        super(InstanceMonitoringView, self).__init__(request, **kwargs)
         self.request = request
-        self.cw_conn = self.get_connection(conn_type='cloudwatch')
+        self.cw_conn = kwargs.get('cw_conn') or self.get_connection(conn_type='cloudwatch')
         self.instance_id = self.request.matchdict.get('id')
         self.location = self.request.route_path('instance_monitoring', id=self.instance_id)
         with boto_error_handler(self.request):
             # Note: We're fetching reservations here since calling self.get_instance() in the context manager
             # will return a 500 error instead of invoking the session timeout handler
             reservations = self.conn.get_all_reservations(instance_ids=[self.instance_id]) if self.conn else []
-        self.instance = instance or self.get_instance(instance_id=self.instance_id, reservations=reservations)
+        self.instance = kwargs.get('instance') or self.get_instance(
+            instance_id=self.instance_id, reservations=reservations)
         self.instance_name = TaggedItemView.get_display_name(self.instance)
         self.monitoring_form = InstanceMonitoringForm(self.request, formdata=self.request.params or None)
         self.monitoring_enabled = self.instance.monitoring_state == 'enabled' if self.instance else False

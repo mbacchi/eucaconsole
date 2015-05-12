@@ -46,18 +46,21 @@ from eucaconsole.i18n import _
 from eucaconsole.views import TaggedItemView
 from eucaconsole.views.instances import InstancesView, InstanceView, InstanceMonitoringView
 
-from tests import BaseViewTestCase, BaseFormTestCase, Mock
+from tests import BaseViewTestCase, BaseFormTestCase, Mock, MockVPCMixin, MockCloudWatchMixin
 
 
 class MockInstanceMixin(object):
     @staticmethod
     @mock_ec2
-    def make_instance(image_id=None, **kwargs):
+    def make_instance(image_id=None, return_conn=False, **kwargs):
         ec2_conn = boto.connect_ec2('us-east')
         if image_id is None:
             image_id = 'ami-1234abcd'
         reservation = ec2_conn.run_instances(image_id, **kwargs)
-        return reservation.instances[0]
+        instance = reservation.instances[0]
+        if return_conn:
+            return ec2_conn, instance
+        return instance
 
 
 class InstancesViewTests(BaseViewTestCase):
@@ -294,7 +297,7 @@ class InstancesFiltersFormTestCaseOnAWS(BaseFormTestCase):
         self.assertTrue(('None', _(u'No VPC')) in self.form.vpc_id.choices)
 
 
-class InstanceMonitoringViewTestCase(BaseViewTestCase, MockInstanceMixin):
+class InstanceMonitoringViewTestCase(BaseViewTestCase, MockInstanceMixin, MockVPCMixin, MockCloudWatchMixin):
 
     def test_instance_monitoring_view_duration_choices(self):
         request = testing.DummyRequest()
@@ -307,15 +310,19 @@ class InstanceMonitoringViewTestCase(BaseViewTestCase, MockInstanceMixin):
     def test_instance_monitoring_state_on_aws(self):
         session = {'cloud_type': 'aws'}
         request = self.create_request(session=session)
-        instance = self.make_instance()
-        view = InstanceView(request, instance=instance).instance_view()
+        ec2_conn, instance = self.make_instance(return_conn=True)
+        vpc_conn = MockVPCMixin.make_vpc_connection()
+        view = InstanceView(request, ec2_conn=ec2_conn, vpc_conn=vpc_conn, instance=instance).instance_view()
         monitoring_state = view.get('instance_monitoring_state')
         self.assertEqual(monitoring_state, u'Detailed')
 
     def test_instance_monitoring_tab_title_on_aws(self):
         session = {'cloud_type': 'aws'}
         request = self.create_request(session=session)
-        instance = self.make_instance()
-        view = InstanceMonitoringView(request, instance=instance).instance_monitoring()
+        ec2_conn, instance = self.make_instance(return_conn=True)
+        vpc_conn = self.make_vpc_connection()
+        cw_conn = self.make_cw_connection()
+        view = InstanceMonitoringView(
+            request, ec2_conn=ec2_conn, vpc_conn=vpc_conn, cw_conn=cw_conn, instance=instance).instance_monitoring()
         monitoring_tab_title = view.get('monitoring_tab_title')
         self.assertEqual(monitoring_tab_title, u'Detailed Monitoring')
