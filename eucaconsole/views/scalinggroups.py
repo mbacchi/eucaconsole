@@ -100,7 +100,6 @@ class ScalingGroupsView(LandingPageView, DeleteScalingGroupMixin):
         if not self.is_vpc_supported:
             del self.filters_form.vpc_zone_identifier
         self.render_dict = dict(
-            filter_fields=False,
             filter_keys=self.filter_keys,
             search_facets=BaseView.escape_json(json.dumps(search_facets)),
             sort_keys=self.get_sort_keys(),
@@ -242,7 +241,7 @@ class BaseScalingGroupView(BaseView):
 
     def get_policies(self, scaling_group):
         policies = []
-        if self.autoscale_conn:
+        if self.autoscale_conn and scaling_group:
             policies = self.autoscale_conn.get_all_policies(as_group=scaling_group.name)
         return sorted(policies)
 
@@ -366,14 +365,14 @@ class ScalingGroupView(BaseScalingGroupView, DeleteScalingGroupMixin):
             self.scaling_group.termination_policies.append('Default')
         self.scaling_group.max_size = self.request.params.get('max_size', 1)
         self.scaling_group.min_size = self.request.params.get('min_size', 0)
-        self.scaling_group.health_check_type = self.request.params.get('health_check_type')
+        self.scaling_group.health_check_type = 'EC2'
         self.scaling_group.health_check_period = self.request.params.get('health_check_period', 120)
         self.scaling_group.default_cooldown = self.request.params.get('default_cooldown', 120)
         self.scaling_group.update()
 
     def get_vpc(self, scaling_group):
         with boto_error_handler(self.request):
-            if self.vpc_conn and scaling_group.vpc_zone_identifier:
+            if self.vpc_conn and scaling_group and scaling_group.vpc_zone_identifier:
                 vpc_subnets = scaling_group.vpc_zone_identifier.split(',')
                 vpc_subnet = self.vpc_conn.get_all_subnets(subnet_ids=vpc_subnets[0])
                 if vpc_subnet:
@@ -517,7 +516,8 @@ class ScalingGroupPoliciesView(BaseScalingGroupView):
             self.scaling_group = self.get_scaling_group()
             self.policies = self.get_policies(self.scaling_group)
             for policy in self.policies:
-                policy_ids[policy.name] = md5(policy.name).hexdigest()[:8]
+                policy_name = policy.name.encode('UTF-8')
+                policy_ids[policy_name] = md5(policy_name).hexdigest()[:8]
             self.alarms = self.get_alarms()
         self.create_form = ScalingGroupPolicyCreateForm(
             self.request, scaling_group=self.scaling_group, alarms=self.alarms, formdata=self.request.params or None)
@@ -702,7 +702,7 @@ class ScalingGroupWizardView(BaseScalingGroupView):
                     name=scaling_group_name,
                     launch_config=launch_config_name,
                     load_balancers=self.request.params.getall('load_balancers'),
-                    health_check_type=self.request.params.get('health_check_type'),
+                    health_check_type='EC2',
                     health_check_period=self.request.params.get('health_check_period'),
                     desired_capacity=self.request.params.get('desired_capacity'),
                     min_size=self.request.params.get('min_size'),
