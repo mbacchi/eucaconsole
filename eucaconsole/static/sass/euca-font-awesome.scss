@@ -26,8 +26,8 @@ $fa-font-path:        "../fonts/font-awesome";
 // app-wide busy indication
 .busy {
     @extend .fa;
-    @extend .fa-spinner;
-    @extend .fa-pulse;
+    @extend .fa-circle-o-notch;
+    @extend .fa-spin;
     .loading & {
         @extend .fa-2x;
     }
