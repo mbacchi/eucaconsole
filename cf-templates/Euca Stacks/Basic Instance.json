@@ -54,5 +54,13 @@
         } ]
       }
     }
+  },
+
+  "Outputs" : {
+    "Instance" : {
+      "Description" : "The DNS name of the instance",
+      "Value" :  { "Fn::GetAtt" : [ "InstanceDef", "PublicDnsName" ]}
+    }
   }
 }
+
