@@ -467,7 +467,7 @@ class ELBView(BaseELBView):
             securitygroup = self.request.params.getall('securitygroup') or None
             listeners_args = self.get_listeners_args()
             vpc_subnet = self.request.params.getall('vpc_subnet') or None
-            # in case of no vpc system, vpc_subnet will be passed as a string 'None'
+            # in case of non-vpc system, vpc_subnet will be passed as a string 'None'
             if vpc_subnet == 'None':
                 vpc_subnet = None
             zone = self.request.params.getall('zone') or None
@@ -784,6 +784,7 @@ class ELBView(BaseELBView):
         return is_cross_zone_enabled
 
 
+# Create ELB wizard class
 class CreateELBView(BaseELBView):
     """Create ELB wizard"""
     TEMPLATE = '../templates/elbs/elb_wizard.pt'
@@ -822,6 +823,7 @@ class CreateELBView(BaseELBView):
     def elb_view(self):
         return self.render_dict
 
+    # pass the atrributes and lists to create ELB wizard's JS controller
     def get_controller_options_json(self):
         return BaseView.escape_json(json.dumps({
             'resource_name': 'elb',
@@ -835,6 +837,10 @@ class CreateELBView(BaseELBView):
             'instances_json_endpoint': self.request.route_path('instances_json'),
         }))
 
+    # pass the list of the available tabs on the create ELB wizard
+    # in case of non-vpc system, skip the display of the 'Network' tab
+    # by setting the 'render' value to be False
+    # and assign the 'display_id' in order for other tabs
     def get_wizard_tab_list(self):
         if self.cloud_type == 'aws' or self.is_vpc_supported:
             tab_list = ({'title': _(u'General'), 'render': True, 'display_id': 1},
@@ -848,20 +854,24 @@ class CreateELBView(BaseELBView):
                         {'title': _(u'Health Check & Advanced'), 'render': True, 'display_id': 3})
         return tab_list
 
+    # handle the create elb request
     @view_config(route_name='elb_create', request_method='POST', renderer=TEMPLATE)
     def elb_create(self):
-        # Ignore the security group requirement in case on Non-VPC system
         vpc_network = self.request.params.get('vpc_network') or None
+        # in case of non-vpc system, vpc_network will be passed as a string 'None'
         if vpc_network == 'None':
             vpc_network = None
+        # if it's a non-vpc system, ignore the security group input requirement
         if vpc_network is None:
             del self.create_form.securitygroup
+        # validate the input attributes from the client request
         if self.create_form.validate():
             name = self.request.params.get('name')
             elb_listener = self.request.params.get('elb_listener')
             certificate_arn = self.request.params.get('certificate_arn') or None
             listeners_args = self.get_listeners_args()
             vpc_subnet = self.request.params.getall('vpc_subnet') or None
+            # in case of non-vpc system, vpc_subnet will be passed as a string 'None'
             if vpc_subnet == 'None':
                 vpc_subnet = None
             securitygroup = self.request.params.getall('securitygroup') or None
@@ -871,6 +881,8 @@ class CreateELBView(BaseELBView):
             backend_certificates = self.request.params.get('backend_certificates') or None
             with boto_error_handler(self.request, self.request.route_path('elbs')):
                 self.log_request(_(u"Creating elastic load balancer {0}").format(name))
+                # create a new elb
+                # differenciate non-vpc and vpc system cases
                 if vpc_subnet is None:
                     params = dict(complex_listeners=listeners_args)
                     self.elb_conn.create_load_balancer(name, zone, **params)
@@ -880,13 +892,18 @@ class CreateELBView(BaseELBView):
                                   security_groups=securitygroup,
                                   complex_listeners=listeners_args)
                     self.elb_conn.create_load_balancer(name, None, **params)
+                # configure the health check attributes for the created elb
                 self.handle_configure_health_check(name)
+                # register elb instances
                 if instances is not None:
                     self.elb_conn.register_instances(name, instances)
+                # set the cross zone load balancer flag
                 if cross_zone_enabled == 'y':
                     self.elb_conn.modify_lb_attribute(name, 'crossZoneLoadBalancing', True)
+                # assign backend certificates if defined
                 if backend_certificates is not None and backend_certificates != '[]':
                     self.handle_backend_certificate_create(name)
+                # add new tags
                 self.add_elb_tags(name)
                 prefix = _(u'Successfully created elastic load balancer')
                 msg = u'{0} {1}'.format(prefix, name)
@@ -897,6 +914,7 @@ class CreateELBView(BaseELBView):
             self.request.error_messages = self.create_form.get_errors_list()
             return self.render_dict
 
+    # handle the create new SSL certificate request
     @view_config(route_name='certificate_create', request_method='POST', renderer=TEMPLATE)
     def certificate_create(self):
         if self.certificate_form.validate():
@@ -916,6 +934,8 @@ class CreateELBView(BaseELBView):
             form_errors = ', '.join(self.certificate_form.get_errors_list())
             return JSONResponse(status=400, message=form_errors)  # Validation failure = bad request
 
+    # handle the create backend certificate request
+    # not supported by boto 2.34.0
     def handle_backend_certificate_create(self, elb_name):
         backend_certificates_json = self.request.params.get('backend_certificates')
         backend_certificates = json.loads(backend_certificates_json) if backend_certificates_json else []
@@ -926,16 +946,21 @@ class CreateELBView(BaseELBView):
         backend_policy_params = {'LoadBalancerName': elb_name,
                                  'PolicyName': backend_policy_name,
                                  'PolicyTypeName': backend_policy_type}
+        # build up the backend policy parameters for multiple backend certificates
         index = 1
         for cert in backend_certificates:
             public_policy_name = u'EucaConsole-PublicKeyPolicy-{0}'.format(cert.get('name'))
             public_policy_attributes['PublicKey'] = cert.get('certificateBody')
+            # create a new elb policy for each backend certificate
             self.elb_conn.create_lb_policy(elb_name, public_policy_name, public_policy_type, public_policy_attributes)
+            # include the new elb policy to the backend policy parameter
             backend_policy_params['PolicyAttributes.member.%d.AttributeName' % index] = 'PublicKeyPolicyName'
             backend_policy_params['PolicyAttributes.member.%d.AttributeValue' % index] = public_policy_name
             index += 1
+        # create a new, final elb policy that contains a list of the policies created in the loop above
         self.elb_conn.get_status('CreateLoadBalancerPolicy', backend_policy_params)
         # sleep is needed for the previous policy creation to complete
         time.sleep(1)
         instance_port = 443
+        # assign the latest policy to this elb
         self.elb_conn.set_lb_policies_of_backend_server(elb_name, instance_port, backend_policy_name)
