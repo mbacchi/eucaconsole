@@ -56,6 +56,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             var urlParams = $.url().param();
             if (urlParams.tab) {
                 $scope.thisTab = urlParams.tab;
+                // trigger the manually update of the current tab section display
                 $scope.toggleTab($scope.thisTab);
             }
             // current security group list for this elb
@@ -68,14 +69,15 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                     }, 500);
                 }
             }
-            // code from David's initial work
+            // code from David's initial work on elb page
             if (options.hasOwnProperty('in_use')) {
                 $scope.elbInUse = options.in_use;
             }
-            // code from David's initial work
+            // code from David's initial work on elb page
             if (options.hasOwnProperty('has_image')) {
                 $scope.hasImage = options.has_image;
             }
+            // code from David's initial work on elb page
             if (!$scope.hasImage) {
                 $('#image-missing-modal').foundation('reveal', 'open');
             }
@@ -86,7 +88,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             // az zone selected for this elb
             if (options.hasOwnProperty('availability_zones')) {
                 $scope.availabilityZones = options.availability_zones;
-                // Timeout is needed for the instance selector to be initialized 
+                // Timeout is needed for the instance selector to be initialized
                 $timeout(function () {
                     $scope.$broadcast('eventUpdateAvailabilityZones', $scope.availabilityZones);
                 }, 500);
@@ -170,7 +172,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 $(this).find('.dialog-progress-display').css('display', 'block');
             });
             $scope.$watch('securityGroups', function () {
-                // wait for the intialization of the angular model to be complete
+                // wait for the intialization of the angular model to be complete,
                 // then monitor the update in the value to inform whether there has been update on the page
                 if ($scope.isInitComplete === true) {
                     $scope.isNotChanged = false;
@@ -197,6 +199,8 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             $scope.$watch('selectedVPCSubnetList', function () {
                 // update the unselected vpc subnet list for the option list on the vpc subnet selecte element
                 $scope.updateUnselectedVPCSubnetList(); 
+                // wait for the intialization of the angular model to be complete,
+                // then monitor the update in the value to inform whether there has been update on the page
                 if ($scope.isInitComplete === true) {
                     $scope.isNotChanged = false;
                 }
@@ -214,6 +218,8 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                     $scope.classCrossZoneEnabled = 'inactive';
                     $scope.classCrossZoneDisabled = 'active';
                 }
+                // wait for the intialization of the angular model to be complete,
+                // then monitor the update in the value to inform whether there has been update on the page
                 if ($scope.isInitComplete === true) {
                     $scope.isNotChanged = false;
                 }
@@ -238,8 +244,9 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 // Relay the text search update signal
                 $scope.$broadcast('eventTextSearch', searchVal, filterKeys);
             });
+            // accepts the signal from the elb listener edior on the listener array update
             $scope.$on('eventUpdateListenerArray', function ($event, listenerArray) {
-                // accepts the signal from the elb listener edior on the listener array update
+                // wait for the intialization of the angular model to be complete
                 if ($scope.isInitComplete === true) {
                     $scope.isNotChanged = false;
                 }
@@ -259,12 +266,12 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 $scope.isNotChanged = false;
                 $scope.$apply();
             });
-            // handle the input update detection on the health checks tab page
+            // handle the input update detection on the input fields of the health checks tab page
             $(document).on('input', '#health-checks-tab input', function () {
                 $scope.isNotChanged = false;
                 $scope.$apply();
             });
-            // handle the input update detection on the health checks tab page
+            // handle the input update detection on the select fields of the health checks tab page
             $(document).on('change', '#health-checks-tab select', function () {
                 $scope.isNotChanged = false;
                 $scope.$apply();
@@ -278,7 +285,8 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 $scope.unsavedChangesWarningModalLeaveCallback();
             });
         };
-        // setFocus function below is copy-and-pasted from another page. Need to be worked on.
+        // setFocus function below is copy-and-pasted from another detail page.
+        // Need to be worked on.
         $scope.setFocus = function () {
             $(document).on('ready', function(){
                 $('.actions-menu').find('a').get(0).focus();
@@ -308,11 +316,13 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             modal.foundation('reveal', 'open');
             modal.find('h3').click();  // Workaround for dropdown menu not closing
         };
+        // handle the click the navigation tab event
         $scope.clickTab = function ($event, tab){
             $event.preventDefault();
             // If there exists unsaved changes, open the warning modal instead
             if ($scope.isNotChanged === false) {
                 $scope.openModalById('unsaved-changes-warning-modal');
+                // callback function for handling ignoring the updates and leaving the page case
                 $scope.unsavedChangesWarningModalLeaveCallback = function() {
                     $scope.isNotChanged = true;
                     $scope.$apply();
@@ -323,6 +333,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             } 
             $scope.toggleTab(tab);
         };
+        // a method to trigger the tab change manually, shared by many tabbed pages
         $scope.toggleTab = function (tab) {
             $(".tabs").children("dd").each(function() {
                 var id = $(this).find("a").attr("href").substring(1);
@@ -337,6 +348,8 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 }
             });
         };
+        // update the array that holds currently selected az list, used for displaying the tiles on instances-tab
+        // the array hold the az objects for full access to each az's attributes
         $scope.updateSelectedZoneList = function () {
             var selected = [];
             angular.forEach($scope.availabilityZones, function (zoneID) {
@@ -350,6 +363,9 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             });
             $scope.selectedZoneList = selected;
         };
+        // update the array that holds currently unselected az list,
+        // used for the options on the az select element for enable zone selection on instances-tab
+        // after the update, reset the 'newZone' value to be the placeholder display
         $scope.updateUnselectedZoneList = function () {
             var allList = $scope.allZoneList;
             var unselected = [];
@@ -373,6 +389,9 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             $scope.unselectedZoneList = unselected;
             $scope.newZone = placeholder;
         };
+        // update the array that holds currently selected vpc subnet list,
+        // used for displaying the tiles on instances-tab
+        // the array hold the vpc subnet objects for full access to each vpc subnet's attributes
         $scope.updateSelectedVPCSubnetList = function () {
             var selected = [];
             angular.forEach($scope.vpcSubnetList, function (subnetID) {
@@ -386,6 +405,9 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             });
             $scope.selectedVPCSubnetList = selected;
         };
+        // update the array that holds currently unselected vpc subnet list,
+        // used for the options on the vpc subnet select element for the enable vpc subnet selection on instances-tab
+        // after the update, reset the 'newZone' value to be the placeholder display
         $scope.updateUnselectedVPCSubnetList = function () {
             var allList = $scope.allVPCSubnetList;
             var unselected = [];
@@ -409,6 +431,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             $scope.unselectedVPCSubnetList = unselected;
             $scope.newVPCSubnet = placeholder;
         };
+        // count this elb's instances per zone
         $scope.getInstanceCountInZone = function (zone) {
             var count = 0;
             angular.forEach($scope.ELBInstanceHealthList, function (instanceHealth) {
@@ -422,6 +445,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             });
             return count;
         };
+        // count this elb's instances per vpc subnet
         $scope.getInstanceCountInSubnet = function (subnetID) {
             var count = 0;
             angular.forEach($scope.ELBInstanceHealthList, function (instanceHealth) {
@@ -435,6 +459,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             });
             return count;
         };
+        // count all unhealthy instances per zone
         $scope.getUnhealthyInstanceCountInZone = function (zone) {
             var count = 0;
             angular.forEach($scope.ELBInstanceHealthList, function (instanceHealth) {
@@ -450,6 +475,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             });
             return count;
         };
+        // count all unhealthy instances per vcp subnet
         $scope.getUnhealthyInstanceCountInSubnet = function (subnetID) {
             var count = 0;
             angular.forEach($scope.ELBInstanceHealthList, function (instanceHealth) {
@@ -465,6 +491,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             });
             return count;
         };
+        // handle the click event of the enable zone button from the instances-tab section
         $scope.clickEnableZone = function ($event) {
             $event.preventDefault();
             if ($scope.newZone.id === 'None') {
@@ -477,6 +504,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 }
             });
         };
+        // handle the click event of the enable vpc subnet button from the instances-tab section
         $scope.clickEnableVPCSubnet = function ($event) {
             $event.preventDefault();
             if ($scope.newVPCSubnet.id === 'None') {
@@ -489,6 +517,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 }
             });
         };
+        // handle the click event of the disable zone option from the tile on the instances-tab section
         $scope.clickDisableZone = function (thisZoneID) {
             angular.forEach($scope.selectedZoneList, function (zone, $index) {
                 if (thisZoneID === zone.id) {
@@ -497,6 +526,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 }
             });
         };
+        // handle the click event of the disable vpc subnet option from the tile on the instances-tab section
         $scope.clickDisableVPCSubnet = function (thisSubnetID) {
             angular.forEach($scope.selectedVPCSubnetList, function (subnet, $index) {
                 if (thisSubnetID === subnet.id) {
@@ -505,6 +535,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 }
             });
         };
+        // handle the click event on the cross zone load balancer field
         $scope.clickCrossZoneLink = function (click) {
             if (click === 'enabled') {
                 $scope.isCrossZoneEnabled = true;
@@ -512,6 +543,10 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 $scope.isCrossZoneEnabled = false;
             }
         };
+        // update the ping path when ping protocol is updated
+        // the ping path value cannot be '' since it's a required input field
+        // thus, replace it with 'None' in case of 'TCP' and 'SSL'
+        // the server will ignore the ping path if ping protocol is 'TCP' or 'SSL'
         $scope.updatePingPath = function () {
             if ($scope.pingProtocol === 'TCP' || $scope.pingProtocol === 'SSL') {
                 $scope.pingPath = 'None';
@@ -521,6 +556,10 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 }
             }
         };
+        // handle the click event of the save changes button on all sections
+        // $scope.thisTab needs to be updated so that it will be passed to the server
+        // the server will include the tab value into URL when refreshing the page
+        // so that the tab section remain the same after refreshing
         $scope.submitSaveChanges = function ($event, tab) {
             $event.preventDefault();
             $scope.isNotChanged = true;
