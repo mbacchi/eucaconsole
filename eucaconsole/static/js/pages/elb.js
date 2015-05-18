@@ -42,6 +42,8 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             $scope.setInitialValues(options);
             $scope.setWatch();
             $scope.setFocus();
+            // timeout is needed to indicate all Angular model initialization steps are complete
+            // This is to prevent Foundation validation form raising false negative warnings
             $timeout(function(){
                 $scope.isInitComplete = true;
             }, 1000);
@@ -50,11 +52,13 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
             if ($('#elb-view-form').length > 0) {
                 $scope.elbForm = $('#elb-view-form');
             }
+            // ?tab= value will be read from URL to determine which tab section to be displayed when the page first loaded
             var urlParams = $.url().param();
             if (urlParams.tab) {
                 $scope.thisTab = urlParams.tab;
                 $scope.toggleTab($scope.thisTab);
             }
+            // current security group list for this elb
             if (options.hasOwnProperty('securitygroups')) {
                 if (options.securitygroups instanceof Array && options.securitygroups.length > 0) {
                     $scope.securityGroups = options.securitygroups;
@@ -64,74 +68,94 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                     }, 500);
                 }
             }
+            // code from David's initial work
             if (options.hasOwnProperty('in_use')) {
                 $scope.elbInUse = options.in_use;
             }
+            // code from David's initial work
             if (options.hasOwnProperty('has_image')) {
                 $scope.hasImage = options.has_image;
             }
             if (!$scope.hasImage) {
                 $('#image-missing-modal').foundation('reveal', 'open');
             }
+            // all az zones list
             if (options.hasOwnProperty('availability_zone_choices')) {
                 $scope.allZoneList = options.availability_zone_choices;
             }
+            // az zone selected for this elb
             if (options.hasOwnProperty('availability_zones')) {
                 $scope.availabilityZones = options.availability_zones;
-                // Timeout is needed for the instance selector to be initizalized
+                // Timeout is needed for the instance selector to be initialized 
                 $timeout(function () {
                     $scope.$broadcast('eventUpdateAvailabilityZones', $scope.availabilityZones);
                 }, 500);
             }
+            // all vpc subnet choices
             if (options.hasOwnProperty('vpc_subnet_choices')) {
                 $scope.allVPCSubnetList = options.vpc_subnet_choices;
             }
+            // vpc network for this elb
             if (options.hasOwnProperty('elb_vpc_network')) {
                 if (options.elb_vpc_network !== null) {
                     $scope.vpcNetwork = options.elb_vpc_network;
                     // Timeout is needed for the instance selector to be initizalized
                     $timeout(function () {
+                        // signal to inform the instance selector widget
                         $scope.$broadcast('eventWizardUpdateVPCNetwork', $scope.vpcNetwork);
                     }, 500);
                 }
             }
+            // vpc subnets for this elb
             if (options.hasOwnProperty('elb_vpc_subnets')) {
                 $scope.vpcSubnetList = options.elb_vpc_subnets;
             }
+            // all instances list
             if (options.hasOwnProperty('all_instances')) {
                 $scope.allInstanceList = options.all_instances;
             }
+            // instance health list for this elb 
             if (options.hasOwnProperty('elb_instance_health')) {
                 $scope.ELBInstanceHealthList = options.elb_instance_health;
             }
+            // flag for the cross zone load balancer for this elb
             if (options.hasOwnProperty('is_cross_zone_enabled')) {
                 $scope.isCrossZoneEnabled = options.is_cross_zone_enabled;
             }
+            // currently selected instances for this elb
             if (options.hasOwnProperty('instances')) {
                 $scope.instanceList = options.instances;
                 // Timeout is needed for the instance selector to be initizalized
                 $timeout(function () {
+                    // signal to inform the instance selector widget on the currently selected instance list
                     $scope.$broadcast('eventInitSelectedInstances', $scope.instanceList);
                 }, 2000);
             }
+            // health check ping protocol for this elb 
             if (options.hasOwnProperty('health_check_ping_protocol')) {
                 $scope.pingProtocol = options.health_check_ping_protocol;
             }
+            // health check ping port for this elb 
             if (options.hasOwnProperty('health_check_ping_port')) {
                 $scope.pingPort = parseInt(options.health_check_ping_port);
             }
+            // health check ping path for this elb 
             if (options.hasOwnProperty('health_check_ping_path')) {
                 $scope.pingPath = options.health_check_ping_path;
             }
+            // health check interval for this elb 
             if (options.hasOwnProperty('health_check_interval')) {
                 $scope.timeBetweenPings = options.health_check_interval;
             }
+            // health check timeout for this elb 
             if (options.hasOwnProperty('health_check_timeout')) {
                 $scope.responseTimeout = options.health_check_timeout;
             }
+            // health check unhealthy threshold for this elb 
             if (options.hasOwnProperty('health_check_unhealthy_threshold')) {
                 $scope.failuresUntilUnhealthy = options.health_check_unhealthy_threshold;
             }
+            // health check healthy threshold for this elb 
             if (options.hasOwnProperty('health_check_healthy_threshold')) {
                 $scope.passesUntilHealthy = options.health_check_healthy_threshold;
             }
@@ -146,33 +170,43 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 $(this).find('.dialog-progress-display').css('display', 'block');
             });
             $scope.$watch('securityGroups', function () {
+                // wait for the intialization of the angular model to be complete
+                // then monitor the update in the value to inform whether there has been update on the page
                 if ($scope.isInitComplete === true) {
                     $scope.isNotChanged = false;
                 }
             }, true);
             $scope.$watch('availabilityZones', function () {
+                // update the selected az list for the tile display
                 $scope.updateSelectedZoneList();
+                // signal to inform the instance selector
                 $scope.$broadcast('eventUpdateAvailabilityZones', $scope.availabilityZones);
             }, true);
             $scope.$watch('selectedZoneList', function () {
+                // when the selected az list is updated,
+                // also update the unselected az list for the option list on the az select element
                 $scope.updateUnselectedZoneList();
                 if ($scope.isInitComplete === true) {
                     $scope.isNotChanged = false;
                 }
             }, true);
             $scope.$watch('vpcSubnetList', function () {
+                // update the selected vpc subnet list for the tile display
                 $scope.updateSelectedVPCSubnetList();
             }, true);
             $scope.$watch('selectedVPCSubnetList', function () {
+                // update the unselected vpc subnet list for the option list on the vpc subnet selecte element
                 $scope.updateUnselectedVPCSubnetList(); 
                 if ($scope.isInitComplete === true) {
                     $scope.isNotChanged = false;
                 }
             }, true);
             $scope.$watch('instanceList', function () {
+                // signal to inform the instance selector
                 $scope.$broadcast('eventInitSelectedInstances', $scope.instanceList);
             }, true);
             $scope.$watch('isCrossZoneEnabled', function () {
+                // handle the active link display for the cross zone load balancer field
                 if ($scope.isCrossZoneEnabled === true) {
                     $scope.classCrossZoneEnabled = 'active';
                     $scope.classCrossZoneDisabled = 'inactive';
@@ -185,9 +219,11 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 }
             });
             $scope.$watch('pingProtocol', function () {
+                // update the ping path value when the ping protocol is updated
                 $scope.updatePingPath();
             });
             $scope.$watch('isNotChanged', function () {
+                // inactivate the navigation tab when there exist updates on the current page
                 if ($scope.isNotChanged === false) {
                     $('#elb-view-tabs').removeAttr('data-tab');
                 } else {
@@ -203,26 +239,32 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 $scope.$broadcast('eventTextSearch', searchVal, filterKeys);
             });
             $scope.$on('eventUpdateListenerArray', function ($event, listenerArray) {
+                // accepts the signal from the elb listener edior on the listener array update
                 if ($scope.isInitComplete === true) {
                     $scope.isNotChanged = false;
                 }
                 $scope.listenerArray = listenerArray;
             });
             $scope.$on('tagUpdate', function($event) {
+                // in case of tag update, mark the input update flag 
                 $scope.isNotChanged = false;
             });
+            // handle the input update detection on the general tab page
             $(document).on('input', '#general-tab input[type="text"]', function () {
                 $scope.isNotChanged = false;
                 $scope.$apply();
             });
+            // handle the input update detection on the instance tab page
             $(document).on('click', '#instances-tab input[type="checkbox"]', function () {
                 $scope.isNotChanged = false;
                 $scope.$apply();
             });
+            // handle the input update detection on the health checks tab page
             $(document).on('input', '#health-checks-tab input', function () {
                 $scope.isNotChanged = false;
                 $scope.$apply();
             });
+            // handle the input update detection on the health checks tab page
             $(document).on('change', '#health-checks-tab select', function () {
                 $scope.isNotChanged = false;
                 $scope.$apply();
@@ -236,6 +278,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                 $scope.unsavedChangesWarningModalLeaveCallback();
             });
         };
+        // setFocus function below is copy-and-pasted from another page. Need to be worked on.
         $scope.setFocus = function () {
             $(document).on('ready', function(){
                 $('.actions-menu').find('a').get(0).focus();
@@ -259,6 +302,7 @@ angular.module('ELBPage', ['EucaConsoleUtils', 'ELBListenerEditor', 'TagEditor',
                }
             });
         };
+        // for opening the unsave changes warning modal
         $scope.openModalById = function (modalID) {
             var modal = $('#' + modalID);
             modal.foundation('reveal', 'open');
