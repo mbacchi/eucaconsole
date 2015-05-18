@@ -409,12 +409,16 @@ class ELBView(BaseELBView):
     def __init__(self, request):
         super(ELBView, self).__init__(request)
         with boto_error_handler(request):
+            # retrieve the elb object for this page
             self.elb = self.get_elb()
-            # boto doesn't convert elb created_time into dtobj like it does for others
             if self.elb:
+                # boto doesn't convert elb created_time into dtobj like it does for others
                 self.elb.created_time = boto.utils.parse_ts(self.elb.created_time)
+                # retrieve the idle_timeout value for this elb
                 self.elb.idle_timeout = self.get_elb_attribute_idle_timeout()
+                # retrieve the health check attributes for this elb
                 self.get_health_check_data()
+                # retrieve the tags for this elb
                 tags_params = {'LoadBalancerNames.member.1': self.elb.name}
                 self.elb.tags = self.elb_conn.get_object('DescribeTags', tags_params, LbTagSet)
             else:
@@ -454,6 +458,7 @@ class ELBView(BaseELBView):
         self.__init__(self.request)
         return self.render_dict
 
+    # handle the elb detail page update
     @view_config(route_name='elb_update', request_method='POST', renderer=TEMPLATE)
     def elb_update(self):
         if self.elb_form.validate():
@@ -462,6 +467,7 @@ class ELBView(BaseELBView):
             securitygroup = self.request.params.getall('securitygroup') or None
             listeners_args = self.get_listeners_args()
             vpc_subnet = self.request.params.getall('vpc_subnet') or None
+            # in case of no vpc system, vpc_subnet will be passed as a string 'None'
             if vpc_subnet == 'None':
                 vpc_subnet = None
             zone = self.request.params.getall('zone') or None
@@ -469,6 +475,7 @@ class ELBView(BaseELBView):
             instances = self.request.params.getall('instances') or None
             location = self.request.route_path('elb_view', id=self.elb.name)
             current_tab = self.request.params.get('current_tab') or None
+            # set up the refresh page URL based on the current tab display
             if current_tab:
                 location = '{0}?tab={1}'.format(location, current_tab)
             prefix = _(u'Unable to update load balancer')
@@ -477,17 +484,24 @@ class ELBView(BaseELBView):
                 self.update_elb_idle_timeout(self.elb.name, idle_timeout)
                 self.update_load_balancer_listeners(self.elb.name, listeners_args)
                 self.update_elb_tags(self.elb.name)
+                # update vpc/non-vpc specific attributes
                 if vpc_subnet is None:
+                    # non-vpc system case
                     self.update_elb_zones(self.elb.name, self.elb.availability_zones, zone)
                     if cross_zone_enabled == 'on':
                         self.elb_conn.modify_lb_attribute(self.elb.name, 'crossZoneLoadBalancing', True)
                     else:
                         self.elb_conn.modify_lb_attribute(self.elb.name, 'crossZoneLoadBalancing', False)
                 else:
+                    # vpc system case
+                    # update security groups only if there have been changes
+                    # in euca, it returns error when trying to update with no changes
                     if self.elb.security_groups != securitygroup:
                         self.elb_conn.apply_security_groups_to_lb(self.elb.name, securitygroup)
                     self.update_elb_subnets(self.elb.name, self.elb.subnets, vpc_subnet)
+                # update elb instances
                 self.update_elb_instances(self.elb.name, self.elb.instances, instances)
+                # update health check attributes
                 self.handle_configure_health_check(self.elb.name)
                 msg = _(u"Updating load balancer")
                 self.log_request(u"{0} {1}".format(msg, self.elb.name))
@@ -525,6 +539,7 @@ class ELBView(BaseELBView):
             return elbs[0] if elbs else None
         return None
 
+    # pass the atrributes and lists to ELB detail page' JS controller
     def get_controller_options_json(self):
         return BaseView.escape_json(json.dumps({
             'resource_name': 'elb',
@@ -552,6 +567,8 @@ class ELBView(BaseELBView):
             'health_check_unhealthy_threshold': self.elb.health_check.unhealthy_threshold if self.elb else '',
         }))
 
+    # get elb's idle timeout value, which is not supported in boto 2.34.0
+    # see above for the class CustomLbAttributes, taken from boto 2.38.0's implementation
     def get_elb_attribute_idle_timeout(self):
         if self.elb:
             params = {'LoadBalancerName': self.elb.name}
@@ -560,12 +577,14 @@ class ELBView(BaseELBView):
             if elb_attrs:
                 return elb_attrs.connecting_settings.idle_timeout
 
+    # update elb's idle timeout value, which is not supported in boto 2.34.0
     def update_elb_idle_timeout(self, elb_name, idle_timeout):
         if self.elb_conn:
             params = {'LoadBalancerName': elb_name}
             params['LoadBalancerAttributes.ConnectionSettings.IdleTimeout'] = idle_timeout
             self.elb_conn.get_status('ModifyLoadBalancerAttributes', params, verb='GET')
 
+    # construct elb listener list for elb listener panel
     def get_listener_list(self):
         listener_list = []
         if self.elb and self.elb.listeners:
@@ -576,6 +595,7 @@ class ELBView(BaseELBView):
                                       'protocol': listener[2]})
         return listener_list
 
+    # add and/or remove elb listeners based in the client request
     def update_load_balancer_listeners(self, name, listeners_args):
         if self.elb_conn and self.elb:
             ports = []
@@ -585,15 +605,20 @@ class ELBView(BaseELBView):
                     ports.append(listener[0])
                 if ports:
                     self.elb_conn.delete_load_balancer_listeners(name, ports)
-                    # sleep is needed for Eucalyptus to avoid not finding the elb error
+                    # sleep is needed for Eucalyptus to avoid the error
+                    # where it fails to find the elb on the next API call
                     time.sleep(1)
             self.elb_conn.create_load_balancer_listeners(name, listeners=listeners_args)
 
+    # remove all tags, then add the current tags back
+    # need to take a better approach rather than deleting all tags first
     def update_elb_tags(self, elb_name):
         if elb_name:
             self.remove_all_elb_tags(elb_name)
             self.add_elb_tags(elb_name)
 
+    # remove all elb tags before update, not supported by boto 2.34.0
+    # need to take a better approach rather than deleting all tags first
     def remove_all_elb_tags(self, elb_name):
         if self.elb.tags:
             remove_tags_params = {'LoadBalancerNames.member.1': elb_name}
@@ -606,6 +631,7 @@ class ELBView(BaseELBView):
             if index > 1:
                 self.elb_conn.get_status('RemoveTags', remove_tags_params, verb='POST')
 
+    # construct add and remove lists and perform remove and/or add operations for elb zones
     def update_elb_zones(self, elb_name, prev_zones, new_zones):
         if prev_zones and new_zones:
             add_zones = []
@@ -629,6 +655,7 @@ class ELBView(BaseELBView):
             if add_zones:
                 self.elb_conn.enable_availability_zones(elb_name, add_zones)
 
+    # construct add and remove lists and perform remove and/or add operations for elb vpc subnets
     def update_elb_subnets(self, elb_name, prev_subnets, new_subnets):
         if prev_subnets and new_subnets:
             add_subnets = []
@@ -652,6 +679,7 @@ class ELBView(BaseELBView):
             if add_subnets:
                 self.elb_conn.attach_lb_to_subnets(elb_name, add_subnets)
 
+    # construct add and remove lists and perform remove and/or add operations for elb instances
     def update_elb_instances(self, elb_name, prev_instances, new_instances):
         add_instances = []
         remove_instances = []
@@ -682,6 +710,7 @@ class ELBView(BaseELBView):
         if add_instances:
             self.elb_conn.register_instances(elb_name, add_instances)
 
+    # get the full vpc network name string for this elb vpc network
     def get_vpc_network_name(self):
         if self.is_vpc_supported:
             if self.elb.vpc_id and self.vpc_conn:
@@ -692,6 +721,7 @@ class ELBView(BaseELBView):
                         return vpc_name
         return 'None'
 
+    # get all security groups for this elb's vpc network
     def get_security_groups(self):
         securitygroups = []
         if self.elb and self.elb.vpc_id:
@@ -699,6 +729,7 @@ class ELBView(BaseELBView):
                 securitygroups = self.ec2_conn.get_all_security_groups(filters={'vpc-id': [self.elb.vpc_id]})
         return securitygroups
 
+    # get registered instances for this elb
     def get_elb_instance_list(self):
         instances = []
         if self.elb and self.elb.instances:
@@ -707,6 +738,7 @@ class ELBView(BaseELBView):
                     instances.append(instance.id)
         return instances
 
+    # get all instances in the account
     def get_all_instances(self):
         if self.ec2_conn:
             instances = []
@@ -720,6 +752,7 @@ class ELBView(BaseELBView):
                     ))
         return instances
 
+    # get the instance health description for this elb
     def get_elb_instance_health(self):
         if self.elb_conn and self.elb:
             instance_health = []
@@ -731,6 +764,7 @@ class ELBView(BaseELBView):
                 ))
         return instance_health
 
+    # get the health check attributes for this elb
     def get_health_check_data(self):
         if self.elb is not None and self.elb.health_check.target is not None:
             self.elb.ping_protocol = ''
@@ -743,6 +777,7 @@ class ELBView(BaseELBView):
                 if match.group(3) is not None:
                     self.elb.ping_path = match.group(3)
 
+    # get the cross zone load balancer flag for this elb
     def get_elb_cross_zone_load_balancing(self):
         if self.elb_conn and self.elb:
             is_cross_zone_enabled = self.elb.is_cross_zone_load_balancing()
