@@ -192,6 +192,7 @@ class ELBsJsonView(LandingPageView):
         return None
 
 
+# Current boto version 2.34.0 does not support ConnecitonSettingAttribute
 class ConnectionSettingAttribute(object):
     """
     Represents the ConnectionSetting segment of ELB Attributes.
@@ -231,6 +232,7 @@ class CustomLbAttributes(object):
         pass
 
 
+# Current boto version 2.34.0 does not support load balancer tab retreival
 class LbTagSet(dict):
     """
     A TagSet is used to collect the tags associated with a particular
@@ -261,6 +263,7 @@ class LbTagSet(dict):
             self._tags_tag = False
 
 
+# Base ELB View class for shared methods between ELB wizard and detail page
 class BaseELBView(TaggedItemView):
     """Views for single ELB"""
     TEMPLATE = '../templates/elbs/elb_view.pt'
@@ -275,6 +278,7 @@ class BaseELBView(TaggedItemView):
         self.vpc_conn = self.get_connection(conn_type='vpc')
         self.is_vpc_supported = BaseView.is_vpc_supported(request)
 
+    # construct and pass elb listener list arguments based on the client request
     def get_listeners_args(self):
         listeners_json = self.request.params.get('elb_listener')
         listeners = json.loads(listeners_json) if listeners_json else []
@@ -291,6 +295,7 @@ class BaseELBView(TaggedItemView):
                 listeners_args.append((from_port, to_port, from_protocol, to_protocol))
         return listeners_args
 
+    # handle the health check related attributes update based on the client request
     def handle_configure_health_check(self, name):
         ping_protocol = self.request.params.get('ping_protocol')
         ping_port = self.request.params.get('ping_port')
@@ -300,6 +305,7 @@ class BaseELBView(TaggedItemView):
         failures_until_unhealthy = self.request.params.get('failures_until_unhealthy')
         passes_until_healthy = self.request.params.get('passes_until_healthy')
         ping_target = u"{0}:{1}".format(ping_protocol, ping_port)
+        # append the ping_path value to the ping target string in case of HTTP and HTTPS
         if ping_protocol in ['HTTP', 'HTTPS']:
             ping_target = u"{0}/{1}".format(ping_target, ping_path)
         hc = HealthCheck(
@@ -311,12 +317,16 @@ class BaseELBView(TaggedItemView):
         )
         self.elb_conn.configure_health_check(name, hc)
 
+    # table header labels for the instance selector widget's display
     def get_instance_selector_text(self):
         instance_selector_text = {'name': _(u'NAME (ID)'), 'tags': _(u'TAGS'),
                                   'zone': _(u'AVAILABILITY ZONE'), 'subnet': _(u'VPC SUBNET'), 'status': _(u'STATUS'),
                                   'no_matching_instance_error_msg': _(u'No matching instances')}
         return instance_selector_text
 
+    # elb listener protocol list
+    # due to the iam connectivity issue on AWS, euca console cannot support secure protocol selections,
+    # thus removing HTTPS and SSL options in case of AWS
     def get_protocol_list(self):
         protocol_list = ()
         if self.cloud_type == 'aws':
@@ -329,6 +339,7 @@ class BaseELBView(TaggedItemView):
                              {'name': 'SSL', 'value': 'SSL', 'port': '443'})
         return protocol_list
 
+    # extract the default vpc value from the session data
     def get_default_vpc_network(self):
         default_vpc = self.request.session.get('default_vpc', [])
         if self.is_vpc_supported:
@@ -345,6 +356,7 @@ class BaseELBView(TaggedItemView):
                 return default_vpc[0]
         return 'None'
 
+    # pass the list of all vpc sunbet objects
     def get_vpc_subnets(self):
         subnets = []
         if self.vpc_conn:
@@ -363,6 +375,7 @@ class BaseELBView(TaggedItemView):
                     ))
         return subnets
 
+    # pass the list of all availability zone objects
     def get_availability_zones(self):
         availability_zones = []
         if self.ec2_conn:
@@ -372,6 +385,7 @@ class BaseELBView(TaggedItemView):
                     availability_zones.append(dict(id=zone.name, name=zone.name))
         return availability_zones
 
+    # add elb tag API call, which is not supported on boto 2.34.0
     def add_elb_tags(self, elb_name):
         tags_json = self.request.params.get('tags')
         tags_dict = json.loads(tags_json) if tags_json else {}
@@ -387,6 +401,7 @@ class BaseELBView(TaggedItemView):
             self.elb_conn.get_status('AddTags', add_tags_params)
 
 
+# ELB detail page class
 class ELBView(BaseELBView):
     """Views for single ELB"""
     TEMPLATE = '../templates/elbs/elb_view.pt'
