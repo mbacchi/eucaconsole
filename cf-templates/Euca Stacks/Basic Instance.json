@@ -5,7 +5,7 @@
 
   "Parameters" : {
     "ImageId" : {
-      "Description" : "The ID of the image to use for the console",
+      "Description" : "The ID of the image to use",
       "Type" : "String"
     },
     "InstanceType" : {
