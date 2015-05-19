@@ -36,6 +36,7 @@ from . import BaseSecureForm, ChoicesManager, TextEscapedField, NAME_WITHOUT_SPA
 from ..views import BaseView
 
 
+# update ELB form for the ELB detail page
 class ELBForm(BaseSecureForm):
     """Elastic Load Balancer update form"""
     idle_timeout = wtforms.TextField(
@@ -108,6 +109,7 @@ class ELBForm(BaseSecureForm):
 
     def set_choices(self):
         self.securitygroup.choices = self.set_security_group_choices()
+        # using the static methods from CreateELBForm
         self.ping_protocol.choices = CreateELBForm.get_ping_protocol_choices()
         self.time_between_pings.choices = CreateELBForm.get_time_between_pings_choices()
         self.failures_until_unhealthy.choices = CreateELBForm.get_failures_until_unhealthy_choices()
@@ -160,6 +162,7 @@ class ELBsFiltersForm(BaseSecureForm):
         ]
 
 
+# create a new ELB form for the create ELB wizard
 class CreateELBForm(BaseSecureForm):
     """Create Elastic Load Balancer form"""
     name_error_msg = NAME_WITHOUT_SPACES_NOTICE
@@ -253,11 +256,11 @@ class CreateELBForm(BaseSecureForm):
             securitygroups=None, use_id=True, add_blank=False)
         region = request.session.get('region')
         self.zone.choices = self.get_availability_zone_choices(region)
+        # using the static methods from CreateELBForm
         self.ping_protocol.choices = CreateELBForm.get_ping_protocol_choices()
         self.time_between_pings.choices = CreateELBForm.get_time_between_pings_choices()
         self.failures_until_unhealthy.choices = CreateELBForm.get_failures_until_unhealthy_choices()
         self.passes_until_healthy.choices = CreateELBForm.get_passes_until_healthy_choices()
-
         self.cross_zone_enabled.data = True
         # Set default choices where applicable, defaulting to first non-blank choice
         if self.cloud_type == 'aws' and len(self.zone.choices) > 1:
@@ -272,6 +275,7 @@ class CreateELBForm(BaseSecureForm):
     def get_availability_zone_choices(self, region):
         return self.choices_manager.availability_zones(region, add_blank=False)
 
+    # static method for the ping protocol select options on the health checks section
     @staticmethod
     def get_ping_protocol_choices():
         return [
@@ -281,6 +285,7 @@ class CreateELBForm(BaseSecureForm):
             ('SSL', 'SSL')
         ]
 
+    # static method for the ping time delay select options on the health checks section
     @staticmethod
     def get_time_between_pings_choices():
         return [
@@ -289,6 +294,7 @@ class CreateELBForm(BaseSecureForm):
             ('300', _(u'5 minutes'))
         ]
 
+    # static method for the ping failures until unhealthy select options on the health checks section
     @staticmethod
     def get_failures_until_unhealthy_choices():
         return [
@@ -304,6 +310,7 @@ class CreateELBForm(BaseSecureForm):
             ('10', '10'),
         ]
 
+    # static method for the ping passes until unhealthy select options on the health checks section
     @staticmethod
     def get_passes_until_healthy_choices():
         return [
@@ -407,6 +414,7 @@ class ELBInstancesFiltersForm(BaseSecureForm):
         ]
 
 
+# create a new SSL certificate form for the certificate modal on the create ELB wizard
 class CertificateForm(BaseSecureForm):
     """Create SSL Certificate form"""
     certificate_name_error_msg = NAME_WITHOUT_SPACES_NOTICE
@@ -448,6 +456,8 @@ class CertificateForm(BaseSecureForm):
         self.private_key.error_msg = self.private_key_error_msg
         self.public_key_certificate.error_msg = self.public_key_certificate_error_msg
 
+    # get all uploaded server certifactes for the account
+    # notice that it uses IAM connection to retrive the cert list, thus not available on AWS
     def get_all_server_certs(self,  iam_conn=None, add_blank=True):
         choices = []
         certificates = {}
@@ -460,6 +470,7 @@ class CertificateForm(BaseSecureForm):
         return sorted(set(choices))
 
 
+# create a new backend certificate form for the certificate modal on the create ELB wizard
 class BackendCertificateForm(BaseSecureForm):
     """Create SSL Certificate form"""
     backend_certificate_name_error_msg = NAME_WITHOUT_SPACES_NOTICE
