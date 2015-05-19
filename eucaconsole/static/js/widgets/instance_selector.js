@@ -63,30 +63,40 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
             };
             $scope.setWatcher = function () {
                 $scope.$watch('allInstanceList', function () {
+                    // when all instance list is updated,
+                    // make sure the filtered, displayed instance list is also updated
                     $scope.updateInstanceList();
                 }, true);
                 $scope.$watch('selectedInstanceList', function () {
                     // Timeout is needed for the ng-repeat's table to update
                     $timeout(function() {
+                        // adjust the checkboxes when selected instance list is updated
                         $scope.checkInstanceAllCheckbox();
                         $scope.matchInstanceCheckboxes();
+                        // when an instance is added or removed,
+                        // adjust the instance zone list, or the instance vpc subnet list
                         if ($scope.vpcNetwork === 'None') { 
                             $scope.updateInstanceAvailabilityZones();
                         } else {
                             $scope.updateInstanceVPCSubnets();
                         }
                     });
+                    // inform the updated selected instance list
                     $scope.$emit('eventUpdateSelectedInstanceList', $scope.selectedInstanceList);
                 }, true);
                 $scope.$watch('availabilityZones', function () {
+                    // inform the updated instance zone list
                     $scope.$emit('eventUpdateAvailabilityZones', $scope.availabilityZones);
                 }, true);
                 $scope.$watch('vpcSubnets', function () {
+                    // inform the updated vpc subnet list
                     $scope.$emit('eventUpdateVPCSubnets', $scope.vpcSubnets);
                 }, true);
                 $scope.$watch('vpcNetwork', function () {
+                    // when VPV network is updated, re-filter through the instance list for display
                     $scope.updateInstanceList();
                 });
+                // magic-search signal
                 $scope.$on('eventQuerySearch', function ($event, query) {
                     $scope.searchQueryURL = '';
                     if (query.length > 0) {
@@ -94,30 +104,40 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     }
                     $scope.getAllInstanceList();
                 });
+                // magic-search signal
                 $scope.$on('eventTextSearch', function ($event, text, filterKeys) {
                     $scope.searchFilter = text;
                     $timeout(function () {
                         $scope.searchFilterItems(filterKeys);
                     });
                 });
+                // handle the checkbox click event
                 $('#instance_selector').on('click', 'input:checkbox', function () {
                     var instanceID = $(this).val();
                     if (instanceID === '_all') {
                         // Clicked all checkbox
                         if ($(this).prop("checked") === true){
+                            // in case of 'select all'
                             $scope.selectedInstanceList = [];
+                            // add all instances from the instance list to the selected instance list
                             angular.forEach($scope.instanceList, function(instance) {
                                 $scope.selectedInstanceList.push(instance);
                             });
+                            // make sure all checkboxes are visually checked
                             $('#instance_selector input:checkbox').not(this).prop('checked', true);
                         } else {
+                            // in case of 'de-selected all'
+                            // clear the selected instance list
                             $scope.selectedInstanceList = [];
+                            // make sure all checkboxes are visually un-checked
                             $('#instance_selector input:checkbox').not(this).prop('checked', false);
                         }
                     } else {
                         // Click instance checkbox
+                        // un-checked the 'check all' checkbox
                         $('#instance-all-checkbox').prop('checked', false);
                         if ($(this).prop("checked") === true){
+                            // in case of 'select'
                             var itemExists = false;
                             angular.forEach($scope.selectedInstanceList, function(instance, $index) {
                                 if (instance.id === instanceID) {
@@ -132,6 +152,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                                 });
                             }
                         } else {
+                            // in case of 'un-select'
                             angular.forEach($scope.selectedInstanceList, function(instance, $index) {
                                 if (instance.id === instanceID) {
                                     $scope.selectedInstanceList.splice($index, 1);
@@ -141,29 +162,38 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     }
                     $scope.$apply();
                 });
+                // receive signal that informs the availability zone list update
                 $scope.$on('eventWizardUpdateAvailabilityZones', function ($event, availabilityZones) {
                     $scope.availabilityZones = availabilityZones;
+                    // update the selected instance list to ensure that the selected instances belong to the new zones
                     $scope.updateSelectedInstanceListForAvailabilityZones();
+                    // adjust the checkboxes accoridng to the updated selected instance list
                     $timeout(function() {
                         $scope.clearInstanceCheckboxes();
                         $scope.matchInstanceCheckboxes();
                     });
                 });
+                // receive signal that informs the VPC subnet list update
                 $scope.$on('eventWizardUpdateVPCSubnets', function ($event, vpcSubnets) {
                     $scope.vpcSubnets = vpcSubnets;
+                    // update the selected instance list to ensure that the selected instances belong to the new VPC subnets
                     $scope.updateSelectedInstanceListForVPCSubnets();
+                    // adjust the checkboxes accoridng to the updated selected instance list
                     $timeout(function() {
                         $scope.clearInstanceCheckboxes();
                         $scope.matchInstanceCheckboxes();
                     });
                 });
+                // receive signal that informs the VPC network update
                 $scope.$on('eventWizardUpdateVPCNetwork', function ($event, vpcNetwork) {
                     $scope.vpcNetwork = vpcNetwork;
                 });
+                // receive signal that informs a new set of selected instances
                 $scope.$on('eventInitSelectedInstances', function ($event, newSelectedInstances) {
                     $scope.initSelectedInstances(newSelectedInstances);
                 });
             };
+            // AJAX call to receive all instance list from the server
             $scope.getAllInstanceList = function () {
                 var csrf_token = $('#csrf_token').val();
                 var data = "csrf_token=" + csrf_token;
@@ -180,6 +210,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     eucaHandleError(oData, status);
                 });
             };
+            // filter through the all instance list and pick the instances that belong to this VPC network
             $scope.updateInstanceList = function () {
                 var tempInstanceArray = [];
                 angular.forEach($scope.allInstanceList, function (instance) {
@@ -213,6 +244,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     });
                 });
             };
+            // initialize the select instansce list values
             $scope.initSelectedInstances = function (newSelectedInstances) {
                 var newList = [];
                 angular.forEach(newSelectedInstances, function (instanceID) {
@@ -224,6 +256,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                 });
                 $scope.selectedInstanceList = newList;
             };
+            // adjust the selected instance list to ensure that selected instances belong to the availiablie zone list
             $scope.updateSelectedInstanceListForAvailabilityZones = function () {
                 var dupList = $scope.selectedInstanceList.slice(0);
                 $scope.selectedInstanceList = [];
@@ -243,6 +276,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     });
                 });
             };
+            // adjust the selected instance list to ensure that selected instances belong to the VPC subnet list
             $scope.updateSelectedInstanceListForVPCSubnets = function () {
                 var dupList = $scope.selectedInstanceList.slice(0);
                 $scope.selectedInstanceList = [];
@@ -262,6 +296,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     });
                 });
             };
+            // adjust the availability zone list to include the selected instances' zones
             $scope.updateInstanceAvailabilityZones = function () {
                 $scope.availabilityZones = [];
                 angular.forEach($scope.selectedInstanceList, function (selectedInstance) {
@@ -280,6 +315,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     });
                 });
             };
+            // adjust the VPC subnet list to include the selected instances' VPC subnets
             $scope.updateInstanceVPCSubnets = function () {
                 $scope.vpcSubnets = [];
                 angular.forEach($scope.selectedInstanceList, function (selectedInstance) {
@@ -298,6 +334,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     });
                 });
             };
+            // taken from magic-search's implementation
             /*  Filter items client side based on search criteria.
              *  @param {array} filterProps Array of properties to filter items on
              */
@@ -332,6 +369,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                 // Update the items[] with the filtered items
                 $scope.instanceList = filteredItems;
             };
+            // un-check the 'check all' box if there is no selected instances
             $scope.checkInstanceAllCheckbox = function () {
                 // When selectedInstanceList is empty and the select all checkbox is clicked, clear the checkbox
                 if ($scope.selectedInstanceList.length === 0 && 
@@ -339,14 +377,15 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     $('#instance-all-checkbox').prop('checked', false);
                 }
             };
+            // clear all instance checkboxes on the table
             $scope.clearInstanceCheckboxes = function () {
                 angular.forEach($scope.allInstanceList, function(instance) {
                     var checkbox = $('#instance-checkbox-' + instance.id);
                     checkbox.prop("checked", false);
                 });
             };
+            // Ensure that the selectedInstanceList's items are checked when the table updates
             $scope.matchInstanceCheckboxes = function () {
-                // Ensure that the selectedInstanceList's items are checked when the table updates
                 angular.forEach($scope.selectedInstanceList, function(instance) {
                     var checkbox = $('#instance-checkbox-' + instance.id);
                     if (checkbox.length > 0 && checkbox.prop("checked") === false){
@@ -354,6 +393,7 @@ angular.module('EucaConsoleUtils').directive('instanceSelector', function() {
                     }
                 });
             };
+            // init function call for the directive
             $scope.initSelector();
         }
     };
