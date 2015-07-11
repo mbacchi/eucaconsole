@@ -30,7 +30,9 @@ Pyramid views for Eucalyptus and AWS CloudFormation stacks
 """
 import simplejson as json
 import os
+import time
 import urllib2
+
 from urllib2 import HTTPError
 from boto.exception import BotoServerError
 
@@ -85,6 +87,7 @@ class StacksView(LandingPageView):
             template = u'{0} {1} - {2}'.format(prefix, name, '{0}')
             with boto_error_handler(self.request, location, template):
                 self.cloudformation_conn.delete_stack(name)
+                time.sleep(1)
                 prefix = _(u'Successfully deleted stack.')
                 msg = u'{0} {1}'.format(prefix, name)
                 queue = Notification.SUCCESS
